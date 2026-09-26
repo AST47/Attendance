@@ -167,9 +167,15 @@ button { cursor: pointer; }
 .section-intro > p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.8; text-align: left; }
 .section-intro > p strong { color: var(--ink); font-weight: 600; }
 
-.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); gap: 22px; align-items: start; }
+.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "privacy privacy"; gap: 22px; align-items: start; }
+.input-layout > .input-card { grid-area: raw; }
+.input-layout > .exceptions-card { grid-area: exceptions; width: 163%; justify-self: end; }
+.input-layout > .mapping-column { display: contents; }
+.input-layout > .mapping-column > .mapping-card:first-child { grid-area: schedule; width: 61%; justify-self: start; }
+.input-layout > .mapping-column > .employee-names-card { grid-area: names; width: 100%; }
+.input-layout > .mapping-column > .privacy-slip { grid-area: privacy; }
 .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
-.exceptions-card { grid-column: 1; border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
+.exceptions-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
 .input-card-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 15px; }
 .section-title-row { display: flex; align-items: center; gap: 11px; }
 .title-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 36px; border-radius: 2px; background: var(--coral-soft); color: var(--coral); }
@@ -388,7 +394,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 @media (max-width: 1080px) {
   .content-wrap { width: min(100% - 48px, 920px); }
   .brand-rail { width: 178px; flex-basis: 178px; padding-inline: 20px; }
-  .input-layout, .analysis-grid { grid-template-columns: 1fr; }
+  .input-layout, .analysis-grid { grid-template-columns: 1fr; grid-template-areas: none; }
+  .input-layout > .input-card, .input-layout > .exceptions-card, .input-layout > .mapping-column > .mapping-card:first-child, .input-layout > .mapping-column > .employee-names-card, .input-layout > .mapping-column > .privacy-slip { grid-area: auto; width: auto; justify-self: stretch; }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .summary-visual-card { min-height: 235px; }
   .summary-visual-card img { min-height: 235px; }
