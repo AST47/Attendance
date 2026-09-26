@@ -289,18 +289,12 @@ button { cursor: pointer; }
 .summary-visual-card { position: relative; min-height: 292px; overflow: hidden; border: 0; }
 .summary-visual-card img { width: 100%; height: 100%; min-height: 292px; display: block; object-fit: cover; }
 .summary-visual-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(23,50,77,.84) 0%, rgba(23,50,77,.14) 65%); }
-.summary-overlay { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; padding: 24px; color: white; }
+.summary-overlay { position: absolute; right: 24px; bottom: 23px; left: 24px; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; color: white; }
 .summary-overlay .eyebrow { margin-bottom: 7px; color: #ffb29b; }
-.summary-overlay strong { max-width: 260px; font-family: "DM Serif Display", Georgia, serif; font-size: 32px; font-weight: 400; line-height: 1.05; }
+.summary-overlay strong { max-width: 260px; font-family: "DM Serif Display", Georgia, serif; font-size: 26px; font-weight: 400; line-height: 1.05; }
 .summary-overlay > span:last-child { margin-top: 7px; color: rgba(255,255,255,.72); font-size: 10px; }
 .summary-adjustments { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
 .summary-adjustments span { padding: 4px 6px; border: 1px solid rgba(255,255,255,.22); background: rgba(23,50,77,.34); color: rgba(255,255,255,.82); font-size: 9px; }
-.minute-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
-.minute-breakdown > div { display: flex; flex-direction: column; gap: 5px; padding: 10px 11px; border: 1px solid rgba(255,255,255,.28); background: rgba(23,50,77,.42); }
-.minute-breakdown small { color: rgba(255,255,255,.68); font-size: 9px; }
-.minute-breakdown b { color: #fff; font-family: "IBM Plex Mono", monospace; font-size: 14px; font-weight: 500; }
-.summary-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 13px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.78); font-size: 9px; line-height: 1.5; }
-.summary-note svg { flex: 0 0 auto; margin-top: 1px; }
 
 .table-card { margin-top: 18px; overflow: hidden; }
 .daily-card { margin-top: 18px; border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
