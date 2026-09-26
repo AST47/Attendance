@@ -200,7 +200,9 @@ button { cursor: pointer; }
 .upload-link { padding: 0; border: 0; border-bottom: 1px solid var(--coral); background: none; color: var(--coral); font-size: 11px; font-weight: 600; }
 .format-hint { display: flex; align-items: center; gap: 6px; margin-top: 11px; color: var(--ink-faint); font-size: 10px; }
 .detected-schema { margin-top: 13px; padding: 10px 11px; border: 1px solid var(--moss-soft); background: rgba(226,233,221,.48); color: var(--ink-soft); font-size: 10px; line-height: 1.65; }
-.detected-schema, .names-detection { height: 112px; min-height: 112px; box-sizing: border-box; overflow: hidden; }
+.input-card [data-slot="card-content"], .names-card-body { display: flex; flex-direction: column; }
+.input-card .detected-schema { flex: 1; }
+.detected-schema, .names-detection { height: auto; min-height: 112px; box-sizing: border-box; overflow: visible; }
 .detected-schema > div { display: flex; align-items: center; gap: 6px; color: var(--moss); }
 .detected-schema strong { font-size: 10px; font-weight: 600; }
 .detected-schema p { margin: 3px 0 0; }
