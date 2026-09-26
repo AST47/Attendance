@@ -247,7 +247,7 @@ button { cursor: pointer; }
 .processed-label .live-dot { width: 6px; height: 6px; box-shadow: none; }
 .export-button { display: inline-flex; align-items: center; gap: 7px; height: 35px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--ink); font-size: 11px; transition: background .18s ease, border-color .18s ease; }
 .export-button:hover { border-color: var(--ink); background: var(--paper-white); }
-.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
 .metric-card { position: relative; min-height: 137px; border-top: 3px solid var(--ink); border-radius: 0 0 var(--radius) var(--radius); background-image: repeating-linear-gradient(0deg, transparent 0, transparent 33px, rgba(217,209,196,.20) 34px); }
 .metric-index { margin-bottom: 14px; color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: .06em; }
 .metric-main .metric-index { color: var(--coral); }
@@ -261,8 +261,8 @@ button { cursor: pointer; }
 .metric-alert .metric-label svg { color: var(--mustard); }
 .metric-card strong { display: block; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
 .metric-card span { color: var(--ink-faint); font-size: 10px; }
-.metric-grid > .metric-card:nth-child(1), .metric-grid > .metric-card:nth-child(2) { align-self: start; }
-.minutes-merge-card { position: relative; grid-column: span 2; min-height: 292px; overflow: hidden; border: 0; background: var(--ink); }
+.dashboard-grid > .metric-card:nth-child(1), .dashboard-grid > .metric-card:nth-child(2) { align-self: start; }
+.minutes-merge-card { position: relative; grid-column: span 2; grid-row: span 2; min-height: 292px; overflow: hidden; border: 0; background: var(--ink); }
 .minutes-merge-card > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
 .minutes-merge-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(23,50,77,.9) 0%, rgba(23,50,77,.22) 100%); }
 .minutes-merge-metrics { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; padding: 0 13px; }
@@ -271,6 +271,7 @@ button { cursor: pointer; }
 .minutes-merge-metrics .metric-card strong { color: var(--ink); }
 .minutes-merge-metrics .metric-card span { color: var(--ink-faint); }
 .minutes-merge-card .summary-overlay { z-index: 2; }
+.dashboard-grid > .status-card { grid-column: span 2; grid-row: 2; min-height: 292px; align-self: stretch; }
 .analysis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
 .status-card { min-height: 292px; background-image: repeating-linear-gradient(0deg, transparent 0, transparent 45px, rgba(217,209,196,.18) 46px); }
 .card-heading-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 24px 15px; }
@@ -372,7 +373,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .content-wrap { width: min(100% - 48px, 920px); }
   .brand-rail { width: 178px; flex-basis: 178px; padding-inline: 20px; }
   .input-layout, .analysis-grid { grid-template-columns: 1fr; }
-  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .summary-visual-card { min-height: 235px; }
   .summary-visual-card img { min-height: 235px; }
   .metric-card strong { font-size: 34px; }
