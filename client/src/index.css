@@ -280,6 +280,8 @@ button { cursor: pointer; }
 .summary-overlay .eyebrow { margin-bottom: 7px; color: #ffb29b; }
 .summary-overlay strong { max-width: 260px; font-family: "DM Serif Display", Georgia, serif; font-size: 26px; font-weight: 400; line-height: 1.05; }
 .summary-overlay > span:last-child { margin-top: 7px; color: rgba(255,255,255,.72); font-size: 10px; }
+.summary-adjustments { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.summary-adjustments span { padding: 4px 6px; border: 1px solid rgba(255,255,255,.22); background: rgba(23,50,77,.34); color: rgba(255,255,255,.82); font-size: 9px; }
 
 .table-card { margin-top: 18px; overflow: hidden; }
 .table-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 24px 17px; border-bottom: 1px solid var(--line); }
@@ -309,6 +311,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .status-pill.status-warning { color: #a1741f; }
 .status-pill.status-negative { color: var(--red); }
 .row-more { border: 0; background: transparent; color: var(--ink-faint); font-size: 11px; letter-spacing: 2px; }
+.row-adjustment { color: var(--ink-faint); font-size: 9px; }
+.row-adjustment.is-added { color: var(--coral); font-weight: 600; }
 .empty-table { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 210px; color: var(--ink); }
 .empty-table img { width: 105px; height: 105px; margin-bottom: 8px; object-fit: cover; mix-blend-mode: multiply; opacity: .83; }
 .empty-table strong { font-size: 12px; font-weight: 600; }

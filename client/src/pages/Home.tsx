@@ -52,7 +52,11 @@ type AttendanceRow = {
   status: "ضمن الوقت" | "متأخر" | "خروج مبكر" | "حركة";
   lateMinutes: number;
   earlyMinutes: number;
+  origin: "أصلية" | "مضافة تلقائياً";
+  adjustment: string;
 };
+type CleaningSummary = { addedEntries: number; addedExits: number; duplicatesRemoved: number };
+type ParsedRow = Pick<AttendanceRow, "id" | "date" | "time" | "code" | "raw">;
 type DetectionInfo = {
   serialIndex: number | null;
   employeeIndex: number | null;
@@ -124,7 +128,7 @@ function parseAttendanceText(text: string): ParseResult {
     timeIndex: timeIndex >= 0 ? timeIndex : null,
     message: employeeIndex === null ? "لم أجد عموداً واضحاً لرقم الموظف من التكرار اليومي." : `فهمت رقم الموظف من العمود ${employeeIndex + 1}${serialIndex !== null ? `، وتجاهلت رقم التسلسل في العمود ${serialIndex + 1}` : ""}${zeroIndexes.length ? ` وأعمدة الصفر (${zeroIndexes.map((index) => index + 1).join("، ")})` : ""}${constantIndexes.length ? ` والأعمدة الثابتة مثل رقم البصامة (${constantIndexes.map((index) => index + 1).join("، ")})` : ""}.`,
   };
-  const rows: Omit<AttendanceRow, "role" | "status" | "lateMinutes" | "earlyMinutes">[] = [];
+  const rows: ParsedRow[] = [];
   parsedLines.forEach(({ line, parts }) => {
     const dateMatch = line.match(/\b(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/);
     const timeMatch = line.match(/\b([01]?\d|2[0-3]):[0-5]\d(?:\s?[AP]M)?\b/i);
@@ -138,34 +142,50 @@ function parseAttendanceText(text: string): ParseResult {
   });
   return { rows: rows as ParseResult["rows"], invalid, detection };
 }
-function enrichRows(baseRows: ParseResult["rows"], schedule: Schedule): AttendanceRow[] {
+function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule): { rows: AttendanceRow[]; summary: CleaningSummary } {
   const start = parseClock(schedule.startTime) ?? 540;
   const end = parseClock(schedule.endTime) ?? 1080;
   const groups = new Map<string, typeof baseRows>();
+  const summary: CleaningSummary = { addedEntries: 0, addedExits: 0, duplicatesRemoved: 0 };
   baseRows.forEach((row) => {
     const key = `${row.id}|${row.date}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(row);
   });
-  return Array.from(groups.values()).flatMap((group) => {
+  const normalized = Array.from(groups.values()).flatMap((group) => {
     const ordered = [...group].sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
-    return ordered.map((row, index) => {
-      const isEntry = ordered.length === 1 ? clockMinutes(row.time) <= (start + end) / 2 : index === 0;
-      const isExit = ordered.length > 1 && index === ordered.length - 1;
+    const midpoint = (start + end) / 2;
+    const entryCandidates = ordered.filter((row) => clockMinutes(row.time) <= midpoint);
+    const exitCandidates = ordered.filter((row) => clockMinutes(row.time) > midpoint);
+    const selectedEntry = entryCandidates[0];
+    const selectedExit = exitCandidates.at(-1);
+    const selected = [
+      selectedEntry ? { ...selectedEntry, roleHint: "دخول" as const, adjustment: entryCandidates.length > 1 ? "تم اعتماد أول بصمة دخول" : "" } : { id: group[0].id, date: group[0].date, time: schedule.startTime, code: "", raw: "بصمة دخول مضافة تلقائياً", roleHint: "دخول" as const, origin: "مضافة تلقائياً" as const, adjustment: "بصمة دخول مضافة تلقائياً" },
+      selectedExit ? { ...selectedExit, roleHint: "خروج" as const, adjustment: exitCandidates.length > 1 ? "تم اعتماد آخر بصمة خروج" : "" } : { id: group[0].id, date: group[0].date, time: schedule.endTime, code: "", raw: "بصمة خروج مضافة تلقائياً", roleHint: "خروج" as const, origin: "مضافة تلقائياً" as const, adjustment: "بصمة خروج مضافة تلقائياً" },
+    ];
+    summary.addedEntries += selectedEntry ? 0 : 1;
+    summary.addedExits += selectedExit ? 0 : 1;
+    summary.duplicatesRemoved += Math.max(0, entryCandidates.length - 1) + Math.max(0, exitCandidates.length - 1);
+    return selected.map((row) => {
+      const isEntry = row.roleHint === "دخول";
+      const isExit = row.roleHint === "خروج";
       const actual = clockMinutes(row.time);
       const lateMinutes = isEntry ? Math.max(0, actual - (start + Math.max(0, schedule.startGrace))) : 0;
       const earlyMinutes = isExit ? Math.max(0, (end - Math.max(0, schedule.endGrace)) - actual) : 0;
-      const role = isEntry ? "دخول" : isExit ? "خروج" : "حركة";
-      const status = role === "دخول" && lateMinutes ? "متأخر" : role === "خروج" && earlyMinutes ? "خروج مبكر" : role === "حركة" ? "حركة" : "ضمن الوقت";
-      return { ...row, role, status, lateMinutes, earlyMinutes };
+      const role: "دخول" | "خروج" = isEntry ? "دخول" : "خروج";
+      const status: AttendanceRow["status"] = role === "دخول" && lateMinutes ? "متأخر" : role === "خروج" && earlyMinutes ? "خروج مبكر" : "ضمن الوقت";
+      return { ...row, role, status, lateMinutes, earlyMinutes, origin: row.origin || "أصلية", adjustment: row.adjustment || "" };
     });
   });
+  return { rows: normalized, summary };
 }
 
 export default function Home() {
   const [sourceText, setSourceText] = useState(SAMPLE_INPUT);
   const [schedule, setSchedule] = useState<Schedule>(DEFAULT_SCHEDULE);
-  const [rows, setRows] = useState<AttendanceRow[]>(() => enrichRows(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE));
+  const initialProcess = processAttendance(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE);
+  const [rows, setRows] = useState<AttendanceRow[]>(initialProcess.rows);
+  const [cleaningSummary, setCleaningSummary] = useState<CleaningSummary>(initialProcess.summary);
   const [detection, setDetection] = useState<DetectionInfo>(() => parseAttendanceText(SAMPLE_INPUT).detection);
   const [invalidRows, setInvalidRows] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("الكل");
@@ -195,7 +215,9 @@ export default function Home() {
     setIsAnalyzing(true);
     window.setTimeout(() => {
       const result = parseAttendanceText(sourceText);
-      setRows(enrichRows(result.rows, schedule));
+      const processed = processAttendance(result.rows, schedule);
+      setRows(processed.rows);
+      setCleaningSummary(processed.summary);
       setDetection(result.detection);
       setInvalidRows(result.invalid);
       setSelectedStatus("الكل"); setQuery(""); setIsAnalyzing(false);
@@ -215,11 +237,11 @@ export default function Home() {
   };
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) readFile(file); event.target.value = ""; };
   const handleDrop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setIsDragging(false); const file = event.dataTransfer.files?.[0]; if (file) readFile(file); };
-  const resetSample = () => { const sample = parseAttendanceText(SAMPLE_INPUT); setSourceText(SAMPLE_INPUT); setSchedule(DEFAULT_SCHEDULE); setRows(enrichRows(sample.rows, DEFAULT_SCHEDULE)); setDetection(sample.detection); setInvalidRows([]); setSelectedStatus("الكل"); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
+  const resetSample = () => { const sample = parseAttendanceText(SAMPLE_INPUT); const processed = processAttendance(sample.rows, DEFAULT_SCHEDULE); setSourceText(SAMPLE_INPUT); setSchedule(DEFAULT_SCHEDULE); setRows(processed.rows); setCleaningSummary(processed.summary); setDetection(sample.detection); setInvalidRows([]); setSelectedStatus("الكل"); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
   const updateSchedule = (key: keyof Schedule, value: string) => setSchedule((current) => ({ ...current, [key]: key.includes("Grace") ? Math.max(0, Number(value) || 0) : value }));
   const exportCsv = () => {
     if (!filteredRows.length) { toast.error("لا توجد سجلات لتصديرها"); return; }
-    const csvRows = [["رقم الموظف", "التاريخ", "التوقيت", "نوع الحركة", "الحالة", "دقائق التأخير", "دقائق الخروج المبكر"], ...filteredRows.map((row) => [row.id, row.date, row.time, row.role, row.status, String(row.lateMinutes), String(row.earlyMinutes)])];
+    const csvRows = [["رقم الموظف", "التاريخ", "التوقيت", "نوع الحركة", "الحالة", "دقائق التأخير", "دقائق الخروج المبكر", "مصدر السطر", "ملاحظة المعالجة"], ...filteredRows.map((row) => [row.id, row.date, row.time, row.role, row.status, String(row.lateMinutes), String(row.earlyMinutes), row.origin, row.adjustment])];
     const csv = "\ufeff" + csvRows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = "attendance-insights.csv"; link.click(); URL.revokeObjectURL(url); toast.success("تم تجهيز ملف CSV");
   };
@@ -237,8 +259,8 @@ export default function Home() {
           <div className="analyze-row"><div className="analyze-caption"><span className="coral-line" /> أول حركة دخول، وآخر حركة خروج لكل موظف في كل يوم</div><Button className="analyze-button" onClick={analyze} disabled={isAnalyzing}>{isAnalyzing ? <><Loader2 size={18} className="spin" /> جارٍ التحليل...</> : <>حلّل السجلات <ArrowLeft size={18} /></>}</Button></div><Separator className="paper-separator" />
           <section className="results-section"><div className="section-intro results-intro"><div><span className="eyebrow">02 / الصورة الواضحة</span><h3>النتيجة في صفحة واحدة</h3></div><div className="results-actions"><span className="processed-label"><span className="live-dot" /> تمت المعالجة محلياً</span><Button variant="outline" className="export-button" onClick={exportCsv}><ArrowDownToLine size={16} /> تنزيل CSV</Button></div></div>
             <div className="metric-grid"><Card className="metric-card metric-main"><CardContent><div className="metric-index">A / قراءة</div><div className="metric-label"><FileText size={16} /> إجمالي الحركات</div><strong>{formatNumber(rows.length)}</strong><span>حركة تم قراءتها</span></CardContent></Card><Card className="metric-card"><CardContent><div className="metric-index">B / زمن</div><div className="metric-label"><Clock3 size={16} /> أيام مختلفة</div><strong>{formatNumber(uniqueDays)}</strong><span>حتى {latestDate}</span></CardContent></Card><Card className="metric-card metric-alert"><CardContent><div className="metric-index">C / تأخير</div><div className="metric-label"><BarChart3 size={16} /> دقائق التأخير</div><strong>{formatNumber(lateMinutes)}</strong><span>{formatNumber(lateCount)} حركة بعد السماح</span></CardContent></Card><Card className="metric-card metric-alert"><CardContent><div className="metric-index">D / خروج</div><div className="metric-label"><CircleHelp size={16} /> دقائق الخروج المبكر</div><strong>{formatNumber(earlyMinutes)}</strong><span>قبل نهاية الدوام المسموحة</span></CardContent></Card></div>
-            <div className="analysis-grid"><Card className="status-card"><CardHeader className="card-heading-row"><div><CardTitle>ملخص الحالات</CardTitle><p>مقارنة الحركات مع أوقات الدوام التي عرّفتها</p></div><Badge variant="outline">{formatNumber(Object.keys(statusCounts).length)} حالات</Badge></CardHeader><CardContent><div className="status-bars">{Object.entries(statusCounts).map(([status, count]) => <div className="status-bar-row" key={status}><div className="status-bar-label"><span className={`status-dot ${getStatusTone(status)}`} /><span>{status}</span><b>{formatNumber(count)}</b></div><div className="bar-track"><div className={`bar-fill ${getStatusTone(status)}`} style={{ width: `${(count / maxStatusCount) * 100}%` }} /></div></div>)}{!rows.length && <div className="empty-inline">حلّل بياناتك حتى يظهر الملخص هنا.</div>}</div><div className="status-footnote"><Info size={14} /> أول توقيت في يوم الموظف يُقارن ببداية الدوام، وآخر توقيت يُقارن بنهايته. الحركات الوسطية لا تدخل في حساب الدقائق.</div></CardContent></Card><Card className="summary-visual-card"><img src={SUMMARY_IMAGE} alt="رسم ورقي تجريدي لملخص الدوام" /><div className="summary-overlay"><span className="eyebrow">ملاحظة سريعة</span><strong>{lateMinutes || earlyMinutes ? `${formatNumber(lateMinutes + earlyMinutes)} دقيقة تحتاج انتباهاً` : "لا توجد دقائق حرجة"}</strong><span>{lateMinutes || earlyMinutes ? "تفصيلها ظاهر في الجدول والتصدير." : "سجل الدوام يبدو مرتباً حتى الآن."}</span></div></Card></div>
-            <Card className="table-card"><CardHeader className="table-header"><div className="table-title"><div className="title-icon title-icon-muted"><Filter size={18} /></div><div><CardTitle>سجل التفاصيل</CardTitle><p>ابحث، صفِّ، ثم صدّر ما تحتاجه</p></div></div><div className="table-controls"><label className="search-field"><span>بحث</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="رقم أو تاريخ..." /></label><div className="status-filter"><select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)} aria-label="تصفية حسب الحالة">{statuses.map((status) => <option key={status}>{status}</option>)}</select><ChevronDown size={15} /></div></div></CardHeader><CardContent className="table-content"><div className="table-scroll"><table><thead><tr><th>رقم الموظف</th><th>التاريخ</th><th>التوقيت</th><th>النوع</th><th>الحالة</th><th>تأخير</th><th>خروج مبكر</th></tr></thead><tbody>{filteredRows.map((row, index) => <tr key={`${row.raw}-${index}`}><td><span className="id-chip">{row.id}</span></td><td dir="ltr">{row.date}</td><td dir="ltr" className="time-cell">{row.time}</td><td>{row.role}</td><td><span className={`status-pill ${getStatusTone(row.status)}`}><span />{row.status}</span></td><td>{row.lateMinutes ? `${formatNumber(row.lateMinutes)} د` : "—"}</td><td>{row.earlyMinutes ? `${formatNumber(row.earlyMinutes)} د` : "—"}</td></tr>)}{!filteredRows.length && <tr><td colSpan={7}><div className="empty-table"><img src={EMPTY_IMAGE} alt="" /><strong>لا توجد سجلات بهذه التصفية</strong><span>جرّب تغيير البحث أو اختيار «الكل».</span></div></td></tr>}</tbody></table></div><div className="table-footer"><span>عرض {formatNumber(filteredRows.length)} من {formatNumber(rows.length)} حركة</span>{invalidRows.length > 0 && <span className="invalid-note"><Info size={14} /> تم تجاوز {formatNumber(invalidRows.length)} سطور غير مكتملة</span>}</div></CardContent></Card>
+            <div className="analysis-grid"><Card className="status-card"><CardHeader className="card-heading-row"><div><CardTitle>ملخص الحالات</CardTitle><p>مقارنة الحركات مع أوقات الدوام التي عرّفتها</p></div><Badge variant="outline">{formatNumber(Object.keys(statusCounts).length)} حالات</Badge></CardHeader><CardContent><div className="status-bars">{Object.entries(statusCounts).map(([status, count]) => <div className="status-bar-row" key={status}><div className="status-bar-label"><span className={`status-dot ${getStatusTone(status)}`} /><span>{status}</span><b>{formatNumber(count)}</b></div><div className="bar-track"><div className={`bar-fill ${getStatusTone(status)}`} style={{ width: `${(count / maxStatusCount) * 100}%` }} /></div></div>)}{!rows.length && <div className="empty-inline">حلّل بياناتك حتى يظهر الملخص هنا.</div>}</div><div className="status-footnote"><Info size={14} /> تم تنظيف البصمات الشاذة: نعتمد أول دخول وآخر خروج، ونضيف التوقيت المفقود تلقائياً عند الحاجة.</div></CardContent></Card><Card className="summary-visual-card"><img src={SUMMARY_IMAGE} alt="رسم ورقي تجريدي لملخص الدوام" /><div className="summary-overlay"><span className="eyebrow">ملاحظة سريعة</span><strong>{lateMinutes || earlyMinutes ? `${formatNumber(lateMinutes + earlyMinutes)} دقيقة تحتاج انتباهاً` : "لا توجد دقائق حرجة"}</strong><span>{lateMinutes || earlyMinutes ? "تفصيلها ظاهر في الجدول والتصدير." : "سجل الدوام يبدو مرتباً حتى الآن."}</span><div className="summary-adjustments"><span>دخول مضاف: {formatNumber(cleaningSummary.addedEntries)}</span><span>خروج مضاف: {formatNumber(cleaningSummary.addedExits)}</span><span>تكرارات محذوفة: {formatNumber(cleaningSummary.duplicatesRemoved)}</span></div></div></Card></div>
+            <Card className="table-card"><CardHeader className="table-header"><div className="table-title"><div className="title-icon title-icon-muted"><Filter size={18} /></div><div><CardTitle>سجل التفاصيل</CardTitle><p>ابحث، صفِّ، ثم صدّر ما تحتاجه</p></div></div><div className="table-controls"><label className="search-field"><span>بحث</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="رقم أو تاريخ..." /></label><div className="status-filter"><select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)} aria-label="تصفية حسب الحالة">{statuses.map((status) => <option key={status}>{status}</option>)}</select><ChevronDown size={15} /></div></div></CardHeader><CardContent className="table-content"><div className="table-scroll"><table><thead><tr><th>رقم الموظف</th><th>التاريخ</th><th>التوقيت</th><th>النوع</th><th>الحالة</th><th>تأخير</th><th>خروج مبكر</th><th>المعالجة</th></tr></thead><tbody>{filteredRows.map((row, index) => <tr key={`${row.raw}-${index}`}><td><span className="id-chip">{row.id}</span></td><td dir="ltr">{row.date}</td><td dir="ltr" className="time-cell">{row.time}</td><td>{row.role}</td><td><span className={`status-pill ${getStatusTone(row.status)}`}><span />{row.status}</span></td><td>{row.lateMinutes ? `${formatNumber(row.lateMinutes)} د` : "—"}</td><td>{row.earlyMinutes ? `${formatNumber(row.earlyMinutes)} د` : "—"}</td><td><span className={`row-adjustment ${row.origin === "مضافة تلقائياً" ? "is-added" : ""}`}>{row.adjustment || row.origin}</span></td></tr>)}{!filteredRows.length && <tr><td colSpan={8}><div className="empty-table"><img src={EMPTY_IMAGE} alt="" /><strong>لا توجد سجلات بهذه التصفية</strong><span>جرّب تغيير البحث أو اختيار «الكل».</span></div></td></tr>}</tbody></table></div><div className="table-footer"><span>عرض {formatNumber(filteredRows.length)} من {formatNumber(rows.length)} حركة منظفة</span>{invalidRows.length > 0 && <span className="invalid-note"><Info size={14} /> تم تجاوز {formatNumber(invalidRows.length)} سطور غير مكتملة</span>}</div></CardContent></Card>
           </section>
           <section className="guide-strip"><div className="guide-copy"><span className="eyebrow">ورقة صغيرة قبل أن تبدأ</span><h3>أول حركة للدخول،<br /><em>وآخر حركة للخروج.</em></h3><p>ضع بداية الدوام ونهايته وفترة السماح لكل منهما. إذا بدأ الدوام 09:00 والسماح 15 دقيقة، فإن 09:16 يُحسب متأخراً بدقيقة واحدة.</p></div><img src={GUIDE_IMAGE} alt="علامات ورقية تمثل أوقات الدوام" /></section>
         </div><footer className="site-footer"><span>دوام. / أداة صغيرة للقراءة اليومية</span><span>مصممة للبيانات التي تبدأ كرقم وتنتهي بفهم.</span></footer>
