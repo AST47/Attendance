@@ -255,7 +255,9 @@ button { cursor: pointer; }
 .metric-card.metric-main { border-top-color: var(--coral); }
 .metric-card.metric-alert { border-top-color: var(--mustard); }
 .metric-card [data-slot="card-content"] { padding: 19px 20px 17px; }
+.dashboard-grid > .metric-card, .minutes-merge-metrics .metric-card { text-align: center; }
 .metric-label { display: flex; align-items: center; gap: 6px; color: var(--ink-faint); font-size: 10px; }
+.dashboard-grid > .metric-card .metric-label, .minutes-merge-metrics .metric-label { justify-content: center; }
 .metric-label svg { color: var(--ink-soft); }
 .metric-main .metric-label svg { color: var(--coral); }
 .metric-alert .metric-label svg { color: var(--mustard); }
@@ -270,7 +272,7 @@ button { cursor: pointer; }
 .minutes-merge-metrics .metric-card [data-slot="card-content"] { padding: 19px 20px 17px; }
 .minutes-merge-metrics .metric-card strong { color: var(--ink); }
 .minutes-merge-metrics .metric-card span { color: var(--ink-faint); }
-.minutes-merge-card .summary-overlay { z-index: 2; }
+.minutes-merge-card .summary-overlay { z-index: 2; align-items: center; text-align: center; }
 .dashboard-grid > .status-card { grid-column: span 2; grid-row: 2; min-height: 292px; align-self: stretch; }
 .analysis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
 .status-card { min-height: 292px; background-image: repeating-linear-gradient(0deg, transparent 0, transparent 45px, rgba(217,209,196,.18) 46px); }
@@ -305,6 +307,7 @@ button { cursor: pointer; }
 .summary-overlay strong { max-width: 260px; font-family: "DM Serif Display", Georgia, serif; font-size: 26px; font-weight: 400; line-height: 1.05; }
 .summary-overlay > span:last-child { margin-top: 7px; color: rgba(255,255,255,.72); font-size: 10px; }
 .summary-adjustments { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.summary-adjustments { justify-content: center; }
 .summary-adjustments span { padding: 4px 6px; border: 1px solid rgba(255,255,255,.22); background: rgba(23,50,77,.34); color: rgba(255,255,255,.82); font-size: 9px; }
 
 .table-card { margin-top: 18px; overflow: hidden; }
