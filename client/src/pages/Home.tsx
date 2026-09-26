@@ -17,6 +17,7 @@ import {
   ScanLine,
   Sparkles,
   Upload,
+  X,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +46,8 @@ const SAMPLE_NAMES = `1001\tأحمد علي
 1003\tخالد حسن`;
 
 type Schedule = typeof DEFAULT_SCHEDULE;
+type ExceptionKind = "عطلة رسمية / إذن" | "إعفاء من التأخير" | "سماح بخروج مبكر";
+type AttendanceException = { id: string; date: string; employee: string; kind: ExceptionKind };
 type AttendanceRow = {
   id: string;
   employeeName: string;
@@ -53,11 +56,13 @@ type AttendanceRow = {
   code: string;
   raw: string;
   role: "دخول" | "خروج" | "حركة";
-  status: "ضمن الوقت" | "متأخر" | "خروج مبكر" | "حركة";
+  status: "ضمن الوقت" | "متأخر" | "خروج مبكر" | "استثناء" | "حركة";
   lateMinutes: number;
   earlyMinutes: number;
   origin: "أصلية" | "مضافة تلقائياً";
   adjustment: string;
+  exception?: ExceptionKind;
+  excludedDay?: boolean;
 };
 type CleaningSummary = { addedEntries: number; addedExits: number; duplicatesRemoved: number };
 type ParsedRow = Pick<AttendanceRow, "id" | "employeeName" | "date" | "time" | "code" | "raw">;
@@ -156,7 +161,7 @@ function parseAttendanceText(text: string): ParseResult {
   });
   return { rows: rows as ParseResult["rows"], invalid, detection };
 }
-function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, employeeNames: Record<string, string> = {}): { rows: AttendanceRow[]; summary: CleaningSummary } {
+function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, employeeNames: Record<string, string> = {}, exceptions: AttendanceException[] = []): { rows: AttendanceRow[]; summary: CleaningSummary } {
   const start = parseClock(schedule.startTime) ?? 540;
   const end = parseClock(schedule.endTime) ?? 1080;
   const groups = new Map<string, typeof baseRows>();
@@ -168,6 +173,7 @@ function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, em
   });
   const normalized = Array.from(groups.values()).flatMap((group) => {
     const ordered = [...group].sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
+    const groupException = exceptions.find((exception) => exception.date === group[0].date && (exception.employee === "الكل" || exception.employee === group[0].id));
     const midpoint = (start + end) / 2;
     const entryCandidates = ordered.filter((row) => clockMinutes(row.time) <= midpoint);
     const exitCandidates = ordered.filter((row) => clockMinutes(row.time) > midpoint);
@@ -184,11 +190,14 @@ function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, em
       const isEntry = row.roleHint === "دخول";
       const isExit = row.roleHint === "خروج";
       const actual = clockMinutes(row.time);
-      const lateMinutes = isEntry ? Math.max(0, actual - (start + Math.max(0, schedule.startGrace))) : 0;
-      const earlyMinutes = isExit ? Math.max(0, (end - Math.max(0, schedule.endGrace)) - actual) : 0;
+      const rawLateMinutes = isEntry ? Math.max(0, actual - (start + Math.max(0, schedule.startGrace))) : 0;
+      const rawEarlyMinutes = isExit ? Math.max(0, (end - Math.max(0, schedule.endGrace)) - actual) : 0;
+      const lateMinutes = groupException?.kind === "عطلة رسمية / إذن" || groupException?.kind === "إعفاء من التأخير" ? 0 : rawLateMinutes;
+      const earlyMinutes = groupException?.kind === "عطلة رسمية / إذن" || groupException?.kind === "سماح بخروج مبكر" ? 0 : rawEarlyMinutes;
       const role: "دخول" | "خروج" = isEntry ? "دخول" : "خروج";
-      const status: AttendanceRow["status"] = role === "دخول" && lateMinutes ? "متأخر" : role === "خروج" && earlyMinutes ? "خروج مبكر" : "ضمن الوقت";
-      return { ...row, employeeName: row.employeeName || employeeNames[row.id] || "", role, status, lateMinutes, earlyMinutes, origin: row.origin || "أصلية", adjustment: row.adjustment || "" };
+      const status: AttendanceRow["status"] = groupException?.kind === "عطلة رسمية / إذن" ? "استثناء" : role === "دخول" && lateMinutes ? "متأخر" : role === "خروج" && earlyMinutes ? "خروج مبكر" : "ضمن الوقت";
+      const exceptionAdjustment = groupException ? `${groupException.kind} — ${groupException.employee === "الكل" ? "عطلة عامة" : "إذن الموظف"}` : "";
+      return { ...row, employeeName: row.employeeName || employeeNames[row.id] || "", role, status, lateMinutes, earlyMinutes, origin: row.origin || "أصلية", adjustment: exceptionAdjustment || row.adjustment || "", exception: groupException?.kind, excludedDay: groupException?.kind === "عطلة رسمية / إذن" };
     });
   });
   return { rows: normalized, summary };
@@ -198,7 +207,7 @@ export default function Home() {
   const [sourceText, setSourceText] = useState(SAMPLE_INPUT);
   const [namesText, setNamesText] = useState(SAMPLE_NAMES);
   const [schedule, setSchedule] = useState<Schedule>(DEFAULT_SCHEDULE);
-  const initialProcess = processAttendance(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE, parseEmployeeNames(SAMPLE_NAMES));
+  const initialProcess = processAttendance(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE, parseEmployeeNames(SAMPLE_NAMES), []);
   const [rows, setRows] = useState<AttendanceRow[]>(initialProcess.rows);
   const [cleaningSummary, setCleaningSummary] = useState<CleaningSummary>(initialProcess.summary);
   const [detection, setDetection] = useState<DetectionInfo>(() => parseAttendanceText(SAMPLE_INPUT).detection);
@@ -210,10 +219,12 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isScheduleOpen, setIsScheduleOpen] = useState(true);
+  const [exceptions, setExceptions] = useState<AttendanceException[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const statuses = useMemo(() => ["الكل", ...Array.from(new Set(rows.map((row) => row.status)))], [rows]);
   const employees = useMemo(() => Array.from(new Set(rows.map((row) => row.id))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })), [rows]);
+  const availableDates = useMemo(() => Array.from(new Set(rows.map((row) => row.date))).sort(), [rows]);
   const employeeNamesById = useMemo(() => rows.reduce<Record<string, string>>((names, row) => { if (row.employeeName) names[row.id] = row.employeeName; return names; }, {}), [rows]);
   const employeeRows = useMemo(() => selectedEmployee === "الكل" ? rows : rows.filter((row) => row.id === selectedEmployee), [rows, selectedEmployee]);
   const periodRows = useMemo(() => !selectedMonth ? employeeRows : employeeRows.filter((row) => row.date.slice(0, 7).replace("/", "-") === selectedMonth), [employeeRows, selectedMonth]);
@@ -222,10 +233,10 @@ export default function Home() {
     return periodRows.filter((row) => (selectedStatus === "الكل" || row.status === selectedStatus) && (!normalizedQuery || `${row.id} ${row.date} ${row.time} ${row.role} ${row.status}`.toLowerCase().includes(normalizedQuery)));
   }, [periodRows, query, selectedStatus]);
   const dailySummary = useMemo(() => {
-    const days = new Map<string, { employee: string; employeeName: string; date: string; entry: AttendanceRow | null; exit: AttendanceRow | null; lateMinutes: number; earlyMinutes: number }>();
+    const days = new Map<string, { employee: string; employeeName: string; date: string; entry: AttendanceRow | null; exit: AttendanceRow | null; lateMinutes: number; earlyMinutes: number; excludedDay?: boolean }>();
     periodRows.forEach((row) => {
       const key = `${row.id}|${row.date}`;
-      if (!days.has(key)) days.set(key, { employee: row.id, employeeName: row.employeeName, date: row.date, entry: null, exit: null, lateMinutes: 0, earlyMinutes: 0 });
+      if (!days.has(key)) days.set(key, { employee: row.id, employeeName: row.employeeName, date: row.date, entry: null, exit: null, lateMinutes: 0, earlyMinutes: 0, excludedDay: row.excludedDay });
       const day = days.get(key)!;
       if (row.role === "دخول") day.entry = row;
       if (row.role === "خروج") day.exit = row;
@@ -235,7 +246,7 @@ export default function Home() {
     return Array.from(days.values()).sort((a, b) => a.date.localeCompare(b.date));
   }, [periodRows]);
   const statusCounts = useMemo(() => periodRows.reduce<Record<string, number>>((acc, row) => { acc[row.status] = (acc[row.status] || 0) + 1; return acc; }, {}), [periodRows]);
-  const uniqueDays = dailySummary.length;
+  const uniqueDays = dailySummary.filter((day) => !day.excludedDay).length;
   const latestDate = periodRows.map((row) => row.date).sort().at(-1) || "—";
   const lateMinutes = periodRows.reduce((sum, row) => sum + row.lateMinutes, 0);
   const earlyMinutes = periodRows.reduce((sum, row) => sum + row.earlyMinutes, 0);
@@ -249,7 +260,7 @@ export default function Home() {
     setIsAnalyzing(true);
     window.setTimeout(() => {
       const result = parseAttendanceText(sourceText);
-      const processed = processAttendance(result.rows, schedule, parseEmployeeNames(namesText));
+      const processed = processAttendance(result.rows, schedule, parseEmployeeNames(namesText), exceptions);
       setRows(processed.rows);
       setCleaningSummary(processed.summary);
       setDetection(result.detection);
@@ -271,8 +282,15 @@ export default function Home() {
   };
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) readFile(file); event.target.value = ""; };
   const handleDrop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setIsDragging(false); const file = event.dataTransfer.files?.[0]; if (file) readFile(file); };
-  const resetSample = () => { const sample = parseAttendanceText(SAMPLE_INPUT); const processed = processAttendance(sample.rows, DEFAULT_SCHEDULE, parseEmployeeNames(SAMPLE_NAMES)); setSourceText(SAMPLE_INPUT); setNamesText(SAMPLE_NAMES); setSchedule(DEFAULT_SCHEDULE); setRows(processed.rows); setCleaningSummary(processed.summary); setDetection(sample.detection); setInvalidRows([]); setSelectedStatus("الكل"); setSelectedEmployee("الكل"); setSelectedMonth(""); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
+  const resetSample = () => { const sample = parseAttendanceText(SAMPLE_INPUT); const processed = processAttendance(sample.rows, DEFAULT_SCHEDULE, parseEmployeeNames(SAMPLE_NAMES), []); setSourceText(SAMPLE_INPUT); setNamesText(SAMPLE_NAMES); setExceptions([]); setSchedule(DEFAULT_SCHEDULE); setRows(processed.rows); setCleaningSummary(processed.summary); setDetection(sample.detection); setInvalidRows([]); setSelectedStatus("الكل"); setSelectedEmployee("الكل"); setSelectedMonth(""); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
   const updateSchedule = (key: keyof Schedule, value: string) => setSchedule((current) => ({ ...current, [key]: key.includes("Grace") ? Math.max(0, Number(value) || 0) : value }));
+  const addException = () => {
+    if (!availableDates.length || !employees.length) { toast.error("حلّل البيانات أولاً حتى تظهر التواريخ والموظفون"); return; }
+    setExceptions((current) => [...current, { id: `${Date.now()}-${current.length}`, date: availableDates[0], employee: "الكل", kind: "عطلة رسمية / إذن" }]);
+  };
+  const updateException = (id: string, key: keyof Omit<AttendanceException, "id">, value: string) => setExceptions((current) => current.map((exception) => exception.id === id ? { ...exception, [key]: value } as AttendanceException : exception));
+  const removeException = (id: string) => setExceptions((current) => current.filter((exception) => exception.id !== id));
+
   const exportCsv = () => {
     if (!filteredRows.length) { toast.error("لا توجد سجلات لتصديرها"); return; }
     const csvRows = [["رقم الموظف", "اسم الموظف", "التاريخ", "التوقيت", "نوع الحركة", "الحالة", "دقائق التأخير", "دقائق الخروج المبكر", "مصدر السطر", "ملاحظة المعالجة"], ...filteredRows.map((row) => [row.id, row.employeeName, row.date, row.time, row.role, row.status, String(row.lateMinutes), String(row.earlyMinutes), row.origin, row.adjustment])];
@@ -296,13 +314,13 @@ export default function Home() {
         <div className="content-wrap">
           <section className="hero-section" style={{ backgroundImage: `url(${HERO_IMAGE})` }}><div className="hero-copy"><Badge className="coral-badge"><Sparkles size={14} /> نسخة تجريبية عملية</Badge><h2>خلّي سجل الدوام<br /><em>يحكي القصة كاملة.</em></h2><p>ارفع ملفك أو الصق البيانات كما هي. سنقارن أول وآخر حركة في يوم كل موظف مع أوقات دوامك، ونحسب الدقائق التي تهمك.</p></div><div className="hero-side-note"><span className="hero-number">01</span><span>إدخال<br />ثم فهم</span></div></section>
           <div className="section-intro"><div><span className="eyebrow">01 / ابدأ من هنا</span><h3>أدخل السجل كما هو</h3></div><p>يكفينا أن نجد: <strong>رقم الموظف، التاريخ، والتوقيت.</strong><br />والرمز الاختياري سيبقى محفوظاً عند التصدير.</p></div>
-          <section className="input-layout"><Card className="input-card"><CardHeader className="input-card-header"><div className="section-title-row"><div className="title-icon"><ScanLine size={20} /></div><div><CardTitle>البيانات الخام</CardTitle><p>الصق النص أو ارفع ملفاً</p></div></div><button className="text-button" onClick={resetSample} title="إعادة المثال الجاهز"><RotateCcw size={15} /> مثال</button></CardHeader><CardContent><textarea value={sourceText} onChange={(event) => handleSourceChange(event.target.value)} className="data-textarea" aria-label="بيانات الدوام الخام" spellCheck={false} dir="ltr" /><div className={`drop-zone ${isDragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}><div className="drop-icon"><Upload size={18} /></div><div><strong>اسحب الملف إلى هنا</strong><span>أو</span></div><button className="upload-link" onClick={() => fileInputRef.current?.click()}>اختر ملفاً</button><input ref={fileInputRef} type="file" accept=".txt,.csv,.tsv,.log,.json" hidden onChange={handleFileChange} /></div><div className="format-hint"><Info size={14} /> يقبل TXT و CSV و TSV — تتم المعالجة محلياً داخل المتصفح</div><div className="detected-schema"><div><span className="schema-pulse" /> <strong>فهمت شكل البيانات تلقائياً</strong></div><p>{detection.message} التاريخ من العمود {detection.dateIndex === null ? "غير واضح" : detection.dateIndex + 1} والوقت من العمود {detection.timeIndex === null ? "غير واضح" : detection.timeIndex + 1}.</p></div></CardContent></Card>
+          <section className="input-layout"><Card className="input-card"><CardHeader className="input-card-header"><div className="section-title-row"><div className="title-icon"><ScanLine size={20} /></div><div><CardTitle>البيانات الخام</CardTitle><p>الصق النص أو ارفع ملفاً</p></div></div><button className="text-button" onClick={resetSample} title="إعادة المثال الجاهز"><RotateCcw size={15} /> مثال</button></CardHeader><CardContent><textarea value={sourceText} onChange={(event) => handleSourceChange(event.target.value)} className="data-textarea" aria-label="بيانات الدوام الخام" spellCheck={false} dir="ltr" /><div className={`drop-zone ${isDragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}><div className="drop-icon"><Upload size={18} /></div><div><strong>اسحب الملف إلى هنا</strong><span>أو</span></div><button className="upload-link" onClick={() => fileInputRef.current?.click()}>اختر ملفاً</button><input ref={fileInputRef} type="file" accept=".txt,.csv,.tsv,.log,.json" hidden onChange={handleFileChange} /></div><div className="format-hint"><Info size={14} /> يقبل TXT و CSV و TSV — تتم المعالجة محلياً داخل المتصفح</div><div className="detected-schema"><div><span className="schema-pulse" /> <strong>فهمت شكل البيانات تلقائياً</strong></div><p>{detection.message} التاريخ من العمود {detection.dateIndex === null ? "غير واضح" : detection.dateIndex + 1} والوقت من العمود {detection.timeIndex === null ? "غير واضح" : detection.timeIndex + 1}.</p></div></CardContent></Card><Card className="exceptions-card"><CardHeader className="input-card-header"><div className="section-title-row"><div className="title-icon title-icon-muted"><FileText size={20} /></div><div><CardTitle>الاستثناءات</CardTitle><p>أضف عطلة أو إذناً قبل إعادة التحليل</p></div></div><Button variant="outline" className="exception-add-button" onClick={addException}>إضافة استثناء +</Button></CardHeader><CardContent className="exceptions-content"><p>القوائم مأخوذة من التواريخ والموظفين الموجودين في البيانات بعد التحليل.</p>{exceptions.map((exception) => <div className="exception-row" key={exception.id}><label><span>التاريخ</span><select value={exception.date} onChange={(event) => updateException(exception.id, "date", event.target.value)}>{availableDates.map((date) => <option key={date} value={date}>{date}</option>)}</select></label><label><span>الموظف</span><select value={exception.employee} onChange={(event) => updateException(exception.id, "employee", event.target.value)}><option value="الكل">الكل — جميع الموظفين</option>{employees.map((employee) => <option key={employee} value={employee}>{employee}{employeeNamesById[employee] ? ` — ${employeeNamesById[employee]}` : ""}</option>)}</select></label><label><span>نوع الاستثناء</span><select value={exception.kind} onChange={(event) => updateException(exception.id, "kind", event.target.value)}><option value="عطلة رسمية / إذن">عطلة رسمية / إذن</option><option value="إعفاء من التأخير">إعفاء من التأخير</option><option value="سماح بخروج مبكر">سماح بخروج مبكر</option></select></label><button className="exception-remove" onClick={() => removeException(exception.id)} aria-label="حذف الاستثناء" title="حذف الاستثناء"><X size={15} /></button></div>)}{exceptions.length > 0 && <div className="exceptions-hint"><Info size={14} /> اضغط «حلّل السجلات» مرة ثانية حتى تُطبَّق الاستثناءات.</div>}{!exceptions.length && <div className="exceptions-empty">لا توجد استثناءات مضافة حالياً.</div>}</CardContent></Card>
             <div className="mapping-column"><Card className={`mapping-card ${isScheduleOpen ? "is-open" : ""}`}><button className="mapping-toggle" onClick={() => setIsScheduleOpen((open) => !open)}><span className="section-title-row"><span className="title-icon title-icon-muted"><Clock3 size={19} /></span><span><strong>أوقات الدوام</strong><small>متى يبدأ وينتهي اليوم؟</small></span></span><ChevronDown size={18} className="chevron" /></button>{isScheduleOpen && <div className="mapping-body"><p>التوقيت بنظام 24 ساعة. بعد انتهاء السماح بدقيقة يبدأ احتساب التأخير.</p><div className="schedule-fields"><label><span>نهاية الدوام</span><input type="text" inputMode="numeric" maxLength={5} placeholder="18:00" dir="ltr" value={schedule.endTime} onChange={(event) => updateSchedule("endTime", event.target.value)} /></label><label><span>سماح النهاية <small>دقيقة</small></span><input type="number" min="0" value={schedule.endGrace} onChange={(event) => updateSchedule("endGrace", event.target.value)} /></label><label><span>بداية الدوام</span><input type="text" inputMode="numeric" maxLength={5} placeholder="09:00" dir="ltr" value={schedule.startTime} onChange={(event) => updateSchedule("startTime", event.target.value)} /></label><label><span>سماح البداية <small>دقيقة</small></span><input type="number" min="0" value={schedule.startGrace} onChange={(event) => updateSchedule("startGrace", event.target.value)} /></label></div><div className="schedule-preview"><span><b>{schedule.startTime}</b> + {formatNumber(schedule.startGrace)} د سماح</span><span><b>{schedule.endTime}</b> − {formatNumber(schedule.endGrace)} د سماح</span></div></div>}</Card><Card className="mapping-card employee-names-card"><div className="mapping-toggle static-toggle"><span className="section-title-row"><span className="title-icon title-icon-muted"><FileText size={19} /></span><span><strong>أسماء الموظفين</strong><small>رقم الموظف ثم الاسم</small></span></span></div><div className="mapping-body"><p>الصق كل رقم بجانب اسم الموظف، سطراً لكل موظف. مثال: <code>1001    أحمد علي</code></p><textarea value={namesText} onChange={(event) => setNamesText(event.target.value)} className="mapping-textarea employee-names-textarea" dir="rtl" placeholder="1001    أحمد علي&#10;1002    سارة محمد" /><div className="mapping-preview">{Object.entries(parseEmployeeNames(namesText)).map(([id, name]) => <span key={id}><b>{id}</b>{name}</span>)}</div></div></Card><div className="privacy-slip"><Check size={14} /> خصوصيتك محفوظة — لا يوجد تسجيل دخول ولا تخزين سحابي</div></div>
           </section>
           <div className="analyze-row"><div className="analyze-caption"><span className="coral-line" /> أول حركة دخول، وآخر حركة خروج لكل موظف في كل يوم</div><Button className="analyze-button" onClick={analyze} disabled={isAnalyzing}>{isAnalyzing ? <><Loader2 size={18} className="spin" /> جارٍ التحليل...</> : <>حلّل السجلات <ArrowLeft size={18} /></>}</Button></div><Separator className="paper-separator" />
           <section className="results-section"><div className="section-intro results-intro"><div><span className="eyebrow">02 / الصورة الواضحة</span><div className="results-title-row"><h3>النتيجة في صفحة واحدة</h3><label className="employee-filter-inline"><span>الموظف</span><select value={selectedEmployee} onChange={(event) => setSelectedEmployee(event.target.value)} aria-label="اختيار الموظف"><option value="الكل">كل الموظفين</option>{employees.map((employee) => <option key={employee} value={employee}>{employee}{employeeNamesById[employee] ? ` — ${employeeNamesById[employee]}` : ""}</option>)}</select><ChevronDown size={14} /></label><label className="month-filter-inline"><span>الشهر</span><input type="month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} aria-label="اختيار الشهر" /></label></div></div><div className="results-actions"><span className="processed-label"><span className="live-dot" /> تمت المعالجة محلياً</span><Button variant="outline" className="export-button" onClick={exportEmployeePdf}>تقرير PDF</Button><Button variant="outline" className="export-button" onClick={exportCsv}><ArrowDownToLine size={16} /> تنزيل CSV</Button></div></div>
             <div className="dashboard-grid"><Card className="metric-card metric-main"><CardContent><div className="metric-index">A / قراءة</div><div className="metric-label"><FileText size={16} /> إجمالي الحركات</div><strong>{formatNumber(periodRows.length)}</strong><span>{selectedEmployee === "الكل" ? "كل الموظفين" : `الموظف ${selectedEmployee}`}</span></CardContent></Card><Card className="metric-card"><CardContent><div className="metric-index">B / زمن</div><div className="metric-label"><Clock3 size={16} /> أيام مختلفة</div><strong>{formatNumber(uniqueDays)}</strong><span>حتى {latestDate}</span></CardContent></Card><Card className="minutes-merge-card"><img src={SUMMARY_IMAGE} alt="رسم ورقي تجريدي لملخص الدوام" /><div className="minutes-merge-tint" /><div className="minutes-merge-metrics"><Card className="metric-card metric-alert"><CardContent><div className="metric-index">C / تأخير</div><div className="metric-label"><BarChart3 size={16} /> دقائق التأخير</div><strong>{formatNumber(lateMinutes)}</strong><span>{formatNumber(lateCount)} حركة بعد السماح</span></CardContent></Card><Card className="metric-card metric-alert"><CardContent><div className="metric-index">D / خروج</div><div className="metric-label"><CircleHelp size={16} /> دقائق الخروج المبكر</div><strong>{formatNumber(earlyMinutes)}</strong><span>للموظف المختار</span></CardContent></Card></div><div className="summary-overlay"><span className="eyebrow">ملاحظة سريعة</span><strong>{lateMinutes || earlyMinutes ? `${formatNumber(lateMinutes + earlyMinutes)} دقيقة تحتاج انتباهاً` : "لا توجد دقائق حرجة"}</strong><span>{lateMinutes || earlyMinutes ? "تفصيلها ظاهر في الجدول والتصدير." : "سجل الدوام يبدو مرتباً حتى الآن."}</span><div className="summary-adjustments"><span>دخول مضاف: {formatNumber(cleaningSummary.addedEntries)}</span><span>خروج مضاف: {formatNumber(cleaningSummary.addedExits)}</span><span>تكرارات محذوفة: {formatNumber(cleaningSummary.duplicatesRemoved)}</span></div></div></Card><Card className="status-card"><CardHeader className="card-heading-row"><div><CardTitle>ملخص الحالات</CardTitle><p>مقارنة الحركات مع أوقات الدوام التي عرّفتها</p></div><Badge variant="outline">{formatNumber(Object.keys(statusCounts).length)} حالات</Badge></CardHeader><CardContent><div className="status-bars">{Object.entries(statusCounts).map(([status, count]) => <div className="status-bar-row" key={status}><div className="status-bar-label"><span className={`status-dot ${getStatusTone(status)}`} /><span>{status}</span><b>{formatNumber(count)}</b></div><div className="bar-track"><div className={`bar-fill ${getStatusTone(status)}`} style={{ width: `${(count / maxStatusCount) * 100}%` }} /></div></div>)}{!rows.length && <div className="empty-inline">حلّل بياناتك حتى يظهر الملخص هنا.</div>}</div><div className="status-footnote"><Info size={14} /> تم تنظيف البصمات الشاذة: نعتمد أول دخول وآخر خروج، ونضيف التوقيت المفقود تلقائياً عند الحاجة.</div></CardContent></Card></div>
-            <Card className="daily-card"><CardHeader className="card-heading-row"><div><CardTitle>الملخص اليومي</CardTitle><p>{selectedEmployee === "الكل" ? "مقارنة يومية لكل الموظفين" : `تفصيل يومي للموظف ${selectedEmployee}`}{selectedMonth ? ` — ${selectedMonth}` : ""}</p></div><Badge variant="outline">{formatNumber(dailySummary.length)} أيام</Badge></CardHeader><CardContent><div className="table-scroll"><table className="daily-table"><thead><tr><th>الموظف</th><th>التاريخ</th><th>الدخول المعتمد</th><th>الخروج المعتمد</th><th>التأخير</th><th>الخروج المبكر</th></tr></thead><tbody>{dailySummary.map((day) => <tr key={`${day.employee}-${day.date}`}><td><span className="id-chip">{day.employee}</span>{day.employeeName && <span className="daily-employee-name">{day.employeeName}</span>}</td><td dir="ltr">{day.date}</td><td dir="ltr" className="time-cell">{day.entry?.time || "—"}</td><td dir="ltr" className="time-cell">{day.exit?.time || "—"}</td><td>{day.lateMinutes ? `${formatNumber(day.lateMinutes)} د` : "—"}</td><td>{day.earlyMinutes ? `${formatNumber(day.earlyMinutes)} د` : "—"}</td></tr>)}{!dailySummary.length && <tr><td colSpan={6}><div className="empty-inline">لا توجد نتائج ضمن الفترة المختارة.</div></td></tr>}</tbody></table></div></CardContent></Card>
+            <Card className="daily-card"><CardHeader className="card-heading-row"><div><CardTitle>الملخص اليومي</CardTitle><p>{selectedEmployee === "الكل" ? "مقارنة يومية لكل الموظفين" : `تفصيل يومي للموظف ${selectedEmployee}`}{selectedMonth ? ` — ${selectedMonth}` : ""}</p></div><Badge variant="outline">{formatNumber(uniqueDays)} أيام</Badge></CardHeader><CardContent><div className="table-scroll"><table className="daily-table"><thead><tr><th>الموظف</th><th>التاريخ</th><th>الدخول المعتمد</th><th>الخروج المعتمد</th><th>التأخير</th><th>الخروج المبكر</th></tr></thead><tbody>{dailySummary.map((day) => <tr key={`${day.employee}-${day.date}`}><td><span className="id-chip">{day.employee}</span>{day.employeeName && <span className="daily-employee-name">{day.employeeName}</span>}</td><td dir="ltr">{day.date}</td><td dir="ltr" className="time-cell">{day.entry?.time || "—"}</td><td dir="ltr" className="time-cell">{day.exit?.time || "—"}</td><td>{day.lateMinutes ? `${formatNumber(day.lateMinutes)} د` : "—"}</td><td>{day.earlyMinutes ? `${formatNumber(day.earlyMinutes)} د` : "—"}</td></tr>)}{!dailySummary.length && <tr><td colSpan={6}><div className="empty-inline">لا توجد نتائج ضمن الفترة المختارة.</div></td></tr>}</tbody></table></div></CardContent></Card>
             <Card className="table-card"><CardHeader className="table-header"><div className="table-title"><div className="title-icon title-icon-muted"><Filter size={18} /></div><div><CardTitle>سجل التفاصيل</CardTitle><p>ابحث، صفِّ، ثم صدّر ما تحتاجه</p></div></div><div className="table-controls"><label className="search-field"><span>بحث</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="رقم أو تاريخ..." /></label><div className="status-filter"><select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)} aria-label="تصفية حسب الحالة">{statuses.map((status) => <option key={status}>{status}</option>)}</select><ChevronDown size={15} /></div></div></CardHeader><CardContent className="table-content"><div className="table-scroll"><table><thead><tr><th>رقم الموظف</th><th>التاريخ</th><th>التوقيت</th><th>النوع</th><th>الحالة</th><th>تأخير</th><th>خروج مبكر</th><th>المعالجة</th></tr></thead><tbody>{filteredRows.map((row, index) => <tr key={`${row.raw}-${index}`}><td><span className="id-chip">{row.id}</span>{row.employeeName && <span className="daily-employee-name">{row.employeeName}</span>}</td><td dir="ltr">{row.date}</td><td dir="ltr" className="time-cell">{row.time}</td><td>{row.role}</td><td><span className={`status-pill ${getStatusTone(row.status)}`}><span />{row.status}</span></td><td>{row.lateMinutes ? `${formatNumber(row.lateMinutes)} د` : "—"}</td><td>{row.earlyMinutes ? `${formatNumber(row.earlyMinutes)} د` : "—"}</td><td><span className={`row-adjustment ${row.origin === "مضافة تلقائياً" ? "is-added" : ""}`}>{row.adjustment || row.origin}</span></td></tr>)}{!filteredRows.length && <tr><td colSpan={8}><div className="empty-table"><img src={EMPTY_IMAGE} alt="" /><strong>لا توجد سجلات بهذه التصفية</strong><span>جرّب تغيير البحث أو اختيار «الكل».</span></div></td></tr>}</tbody></table></div><div className="table-footer"><span>عرض {formatNumber(filteredRows.length)} من {formatNumber(periodRows.length)} حركة منظفة</span>{invalidRows.length > 0 && <span className="invalid-note"><Info size={14} /> تم تجاوز {formatNumber(invalidRows.length)} سطور غير مكتملة</span>}</div></CardContent></Card>
           </section>
           <section className="guide-strip"><div className="guide-copy"><span className="eyebrow">ورقة صغيرة قبل أن تبدأ</span><h3>أول حركة للدخول،<br /><em>وآخر حركة للخروج.</em></h3><p>ضع بداية الدوام ونهايته وفترة السماح لكل منهما. إذا بدأ الدوام 09:00 والسماح 15 دقيقة، فإن 09:16 يُحسب متأخراً بدقيقة واحدة.</p></div><img src={GUIDE_IMAGE} alt="علامات ورقية تمثل أوقات الدوام" /></section>

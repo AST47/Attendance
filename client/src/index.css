@@ -169,6 +169,7 @@ button { cursor: pointer; }
 
 .input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); gap: 22px; align-items: start; }
 .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
+.exceptions-card { grid-column: 1; border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
 .input-card-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 15px; }
 .section-title-row { display: flex; align-items: center; gap: 11px; }
 .title-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 36px; border-radius: 2px; background: var(--coral-soft); color: var(--coral); }
@@ -221,6 +222,18 @@ button { cursor: pointer; }
 .mapping-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
 .muted-inline { color: var(--ink-faint) !important; }
 .privacy-slip { display: flex; align-items: center; gap: 6px; margin: 13px 2px 0; color: var(--moss); font-size: 10px; }
+.exceptions-content { padding: 0 24px 22px; }
+.exceptions-content > p { margin: 0 0 12px; color: var(--ink-faint); font-size: 10px; }
+.exception-add-button { height: 32px; padding-inline: 11px; border-color: var(--coral); color: var(--coral); font-size: 10px; }
+.exception-add-button:hover { background: var(--coral-soft); }
+.exception-row { display: grid; grid-template-columns: 1fr 1.35fr 1.25fr 28px; gap: 8px; align-items: end; margin-top: 10px; padding: 11px; border: 1px solid var(--line); background: rgba(247,243,235,.72); }
+.exception-row label { display: flex; min-width: 0; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 9px; }
+.exception-row select { width: 100%; height: 33px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper-white); color: var(--ink); font-size: 10px; outline: none; }
+.exception-row select:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
+.exception-remove { width: 28px; height: 33px; display: grid; place-items: center; border: 1px solid var(--line); background: transparent; color: var(--ink-faint); }
+.exception-remove:hover { border-color: var(--coral); color: var(--coral); }
+.exceptions-hint { display: flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--coral); font-size: 10px; }
+.exceptions-empty { padding: 13px; border: 1px dashed var(--line); color: var(--ink-faint); font-size: 10px; text-align: center; }
 .analyze-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 24px 0 43px; }
 .analyze-caption { display: flex; align-items: center; gap: 9px; color: var(--ink-faint); font-size: 11px; }
 .coral-line { width: 28px; height: 1px; background: var(--coral); }
@@ -400,6 +413,10 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
   .input-layout { gap: 15px; }
+  .exceptions-card { grid-column: auto; }
+  .exception-row { grid-template-columns: 1fr 1fr; }
+  .exception-row label:nth-child(3) { grid-column: 1 / -1; }
+  .exception-remove { grid-column: 2; grid-row: 1; justify-self: end; }
   .analyze-row { align-items: flex-start; flex-direction: column-reverse; }
   .analyze-button { width: 100%; }
   .analyze-caption { align-self: flex-start; }
