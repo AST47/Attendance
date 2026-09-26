@@ -199,6 +199,14 @@ button { cursor: pointer; }
 .mapping-body { padding: 0 22px 22px; }
 .mapping-body p { margin: 0 0 11px; color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
 .mapping-body code { padding: 3px 5px; background: var(--paper-deep); color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 10px; direction: ltr; }
+.schedule-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 9px; }
+.schedule-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 10px; }
+.schedule-fields label small { color: var(--ink-faint); font-size: 9px; }
+.schedule-fields input { width: 100%; height: 35px; padding: 0 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 12px; outline: none; }
+.schedule-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
+.schedule-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.schedule-preview span { padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
+.schedule-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
 .mapping-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 .mapping-preview span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
 .mapping-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
@@ -302,6 +310,11 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .empty-table span { margin-top: 5px; color: var(--ink-faint); font-size: 10px; }
 .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 13px 24px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 10px; }
 .invalid-note { display: flex; align-items: center; gap: 6px; color: #a1741f; }
+
+@media (max-width: 520px) {
+  .schedule-fields { grid-template-columns: 1fr 1fr; gap: 9px 7px; }
+  .schedule-preview { flex-direction: column; }
+}
 
 .guide-strip { min-height: 216px; display: flex; align-items: center; justify-content: space-between; gap: 25px; margin-top: 53px; padding: 28px 40px 28px 48px; overflow: hidden; background: var(--ink); color: var(--paper); }
 .guide-copy { max-width: 550px; }
