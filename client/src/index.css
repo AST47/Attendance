@@ -177,7 +177,7 @@ button { cursor: pointer; }
 .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
 .exceptions-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
 .input-card-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 15px; }
-.input-card, .employee-names-card { align-self: stretch; }
+.input-card, .employee-names-card { align-self: stretch; height: 100%; box-sizing: border-box; }
 .section-title-row { display: flex; align-items: center; gap: 11px; }
 .title-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 36px; border-radius: 2px; background: var(--coral-soft); color: var(--coral); }
 .title-icon-muted { background: var(--paper-deep); color: var(--ink-soft); }
@@ -209,7 +209,7 @@ button { cursor: pointer; }
 .mapping-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border: 0; background: transparent; color: var(--ink); text-align: right; }
 .mapping-toggle .section-title-row { flex: 1; }
 .static-toggle { cursor: default; }
-.employee-names-card { margin-top: 13px; }
+.employee-names-card { margin-top: 0; height: 100%; box-sizing: border-box; }
 .employee-names-textarea { min-height: 92px; }
 .names-card-body { display: flex; flex-direction: column; }
 .names-card-body .employee-names-textarea { min-height: 190px; }
