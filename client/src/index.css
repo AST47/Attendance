@@ -229,6 +229,12 @@ button { cursor: pointer; }
 .paper-separator { height: 1px; background: var(--line); }
 
 .results-intro { margin-top: 50px; }
+.results-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+.results-title-row h3 { margin: 0; }
+.employee-filter-inline { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 35px; padding: 0 9px; border: 1px solid var(--coral); background: var(--paper-white); color: var(--ink-soft); font-size: 10px; }
+.employee-filter-inline span { color: var(--coral); font-weight: 600; }
+.employee-filter-inline select { appearance: none; min-width: 94px; padding: 0 17px 0 2px; border: 0; outline: 0; background: transparent; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 11px; cursor: pointer; }
+.employee-filter-inline svg { position: absolute; left: 8px; pointer-events: none; color: var(--ink-faint); }
 .results-actions { display: flex; align-items: center; gap: 17px; }
 .processed-label { display: flex; align-items: center; gap: 7px; color: var(--moss); font-size: 11px; }
 .processed-label .live-dot { width: 6px; height: 6px; box-shadow: none; }
