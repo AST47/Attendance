@@ -199,6 +199,10 @@ button { cursor: pointer; }
 .mapping-card { overflow: hidden; }
 .mapping-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border: 0; background: transparent; color: var(--ink); text-align: right; }
 .mapping-toggle .section-title-row { flex: 1; }
+.static-toggle { cursor: default; }
+.employee-names-card { margin-top: 13px; }
+.employee-names-textarea { min-height: 92px; }
+.daily-employee-name { display: inline-block; margin-right: 7px; color: var(--ink-soft); font-size: 10px; }
 .chevron { color: var(--ink-faint); transition: transform .2s ease; }
 .mapping-card.is-open .chevron { transform: rotate(180deg); }
 .mapping-body { padding: 0 22px 22px; }
