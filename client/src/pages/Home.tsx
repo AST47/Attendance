@@ -53,7 +53,15 @@ type AttendanceRow = {
   lateMinutes: number;
   earlyMinutes: number;
 };
-type ParseResult = { rows: AttendanceRow[]; invalid: string[] };
+type DetectionInfo = {
+  serialIndex: number | null;
+  employeeIndex: number | null;
+  zeroIndexes: number[];
+  dateIndex: number | null;
+  timeIndex: number | null;
+  message: string;
+};
+type ParseResult = { rows: AttendanceRow[]; invalid: string[]; detection: DetectionInfo };
 
 function formatNumber(value: number) { return new Intl.NumberFormat("ar-EG").format(value); }
 function parseClock(value: string) {
@@ -74,24 +82,50 @@ function getStatusTone(status: string) {
   return "status-neutral";
 }
 function parseAttendanceText(text: string): ParseResult {
-  const rows: Omit<AttendanceRow, "role" | "status" | "lateMinutes" | "earlyMinutes">[] = [];
   const invalid: string[] = [];
-  text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).forEach((line) => {
+  const parsedLines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+    const separator = line.includes("\t") ? "\t" : line.includes(";") ? ";" : line.includes(",") ? "," : null;
+    return { line, parts: separator ? line.split(separator).map((part) => part.trim()) : line.split(/\s+/) };
+  });
+  const dataLines = parsedLines.filter(({ parts }) => parts.some((part) => /\d{4}[-/]\d{1,2}[-/]\d{1,4}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/.test(part)) && parts.some((part) => /\b([01]?\d|2[0-3]):[0-5]\d/.test(part)));
+  const sample = dataLines[0]?.parts || [];
+  const dateIndex = sample.findIndex((part) => /\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/.test(part));
+  const timeIndex = sample.findIndex((part) => /\b([01]?\d|2[0-3]):[0-5]\d/.test(part));
+  const numericIndexes = sample.map((_, index) => index).filter((index) => index !== dateIndex && index !== timeIndex && dataLines.every(({ parts }) => /^\d+$/.test(parts[index] || "")));
+  const valuesByIndex = new Map<number, number[]>();
+  numericIndexes.forEach((index) => valuesByIndex.set(index, dataLines.map(({ parts }) => Number(parts[index]))));
+  const zeroIndexes = numericIndexes.filter((index) => valuesByIndex.get(index)!.every((value) => value === 0));
+  const serialIndex = numericIndexes.find((index) => {
+    if (zeroIndexes.includes(index)) return false;
+    const values = valuesByIndex.get(index)!;
+    return values.length > 1 && values.every((value, position) => position === 0 || value === values[position - 1] + 1);
+  }) ?? null;
+  const usefulIndexes = numericIndexes.filter((index) => !zeroIndexes.includes(index) && index !== serialIndex);
+  const employeeIndex = usefulIndexes.find((index) => {
+    const values = valuesByIndex.get(index)!;
+    return new Set(values).size < values.length;
+  }) ?? usefulIndexes[0] ?? null;
+  const detection: DetectionInfo = {
+    serialIndex,
+    employeeIndex,
+    zeroIndexes,
+    dateIndex: dateIndex >= 0 ? dateIndex : null,
+    timeIndex: timeIndex >= 0 ? timeIndex : null,
+    message: employeeIndex === null ? "لم أجد عموداً واضحاً لرقم الموظف" : `فهمت رقم الموظف من العمود ${employeeIndex + 1}${serialIndex !== null ? `، وتجاهلت رقم التسلسل في العمود ${serialIndex + 1}` : ""}${zeroIndexes.length ? ` وأعمدة الصفر (${zeroIndexes.map((index) => index + 1).join("، ")})` : ""}.`,
+  };
+  const rows: Omit<AttendanceRow, "role" | "status" | "lateMinutes" | "earlyMinutes">[] = [];
+  parsedLines.forEach(({ line, parts }) => {
     const dateMatch = line.match(/\b(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/);
     const timeMatch = line.match(/\b([01]?\d|2[0-3]):[0-5]\d(?:\s?[AP]M)?\b/i);
-    const separator = line.includes("\t") ? "\t" : line.includes(";") ? ";" : line.includes(",") ? "," : null;
-    const parts = separator ? line.split(separator).map((part) => part.trim()) : line.split(/\s+/);
-    const dateIndex = parts.findIndex((part) => /\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/.test(part));
-    const timeIndex = parts.findIndex((part) => /\b([01]?\d|2[0-3]):[0-5]\d/.test(part));
-    const idCandidate = parts.find((part, index) => index !== dateIndex && index !== timeIndex && /^\d{2,}$/.test(part.replace(/\D/g, "")));
-    const codeCandidate = parts.find((part, index) => index !== dateIndex && index !== timeIndex && part !== idCandidate && /^\d+$/.test(part)) || "";
-    if (!dateMatch || !timeMatch || !idCandidate) {
+    const employee = detection.employeeIndex === null ? "" : parts[detection.employeeIndex]?.replace(/\D/g, "") || "";
+    const codeCandidate = parts.find((part, index) => index !== dateIndex && index !== timeIndex && index !== detection.employeeIndex && /^\d+$/.test(part)) || "";
+    if (!dateMatch || !timeMatch || !employee) {
       if (!/^((رقم|التاريخ|date|id|employee|time|code|status)\b)/i.test(line)) invalid.push(line);
       return;
     }
-    rows.push({ id: idCandidate.replace(/\D/g, ""), date: dateMatch[1], time: timeMatch[0], code: codeCandidate, raw: line });
+    rows.push({ id: employee, date: dateMatch[1], time: timeMatch[0], code: codeCandidate, raw: line });
   });
-  return { rows: rows as ParseResult["rows"], invalid };
+  return { rows: rows as ParseResult["rows"], invalid, detection };
 }
 function enrichRows(baseRows: ParseResult["rows"], schedule: Schedule): AttendanceRow[] {
   const start = parseClock(schedule.startTime) ?? 540;
@@ -121,6 +155,7 @@ export default function Home() {
   const [sourceText, setSourceText] = useState(SAMPLE_INPUT);
   const [schedule, setSchedule] = useState<Schedule>(DEFAULT_SCHEDULE);
   const [rows, setRows] = useState<AttendanceRow[]>(() => enrichRows(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE));
+  const [detection, setDetection] = useState<DetectionInfo>(() => parseAttendanceText(SAMPLE_INPUT).detection);
   const [invalidRows, setInvalidRows] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("الكل");
   const [query, setQuery] = useState("");
@@ -150,21 +185,26 @@ export default function Home() {
     window.setTimeout(() => {
       const result = parseAttendanceText(sourceText);
       setRows(enrichRows(result.rows, schedule));
+      setDetection(result.detection);
       setInvalidRows(result.invalid);
       setSelectedStatus("الكل"); setQuery(""); setIsAnalyzing(false);
       if (result.rows.length) toast.success(`تم تحليل ${formatNumber(result.rows.length)} حركة بنجاح`);
       else toast.error("لم أجد سجلات مكتملة. تأكد من وجود رقم موظف وتاريخ وتوقيت.");
     }, 380);
   };
+  const handleSourceChange = (value: string) => {
+    setSourceText(value);
+    setDetection(parseAttendanceText(value).detection);
+  };
   const readFile = (file: File) => {
     if (!file.name.match(/\.(txt|csv|tsv|log|json)$/i)) { toast.error("ارفع ملفاً نصياً أو CSV أو TSV فقط"); return; }
     const reader = new FileReader();
-    reader.onload = () => { setSourceText(String(reader.result || "")); toast.success(`تم تحميل ${file.name}. اضغط «حلّل السجلات» لإظهار النتيجة.`); };
+    reader.onload = () => { const value = String(reader.result || ""); handleSourceChange(value); toast.success(`تم تحميل ${file.name}. فهمت شكل الأعمدة، واضغط «حلّل السجلات» لإظهار النتيجة.`); };
     reader.onerror = () => toast.error("تعذّر قراءة الملف"); reader.readAsText(file, "UTF-8");
   };
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) readFile(file); event.target.value = ""; };
   const handleDrop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setIsDragging(false); const file = event.dataTransfer.files?.[0]; if (file) readFile(file); };
-  const resetSample = () => { setSourceText(SAMPLE_INPUT); setSchedule(DEFAULT_SCHEDULE); setRows(enrichRows(parseAttendanceText(SAMPLE_INPUT).rows, DEFAULT_SCHEDULE)); setInvalidRows([]); setSelectedStatus("الكل"); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
+  const resetSample = () => { const sample = parseAttendanceText(SAMPLE_INPUT); setSourceText(SAMPLE_INPUT); setSchedule(DEFAULT_SCHEDULE); setRows(enrichRows(sample.rows, DEFAULT_SCHEDULE)); setDetection(sample.detection); setInvalidRows([]); setSelectedStatus("الكل"); setQuery(""); toast.message("رجعنا للمثال الجاهز"); };
   const updateSchedule = (key: keyof Schedule, value: string) => setSchedule((current) => ({ ...current, [key]: key.includes("Grace") ? Math.max(0, Number(value) || 0) : value }));
   const exportCsv = () => {
     if (!filteredRows.length) { toast.error("لا توجد سجلات لتصديرها"); return; }
@@ -180,7 +220,7 @@ export default function Home() {
         <div className="content-wrap">
           <section className="hero-section" style={{ backgroundImage: `url(${HERO_IMAGE})` }}><div className="hero-copy"><Badge className="coral-badge"><Sparkles size={14} /> نسخة تجريبية عملية</Badge><h2>خلّي سجل الدوام<br /><em>يحكي القصة كاملة.</em></h2><p>ارفع ملفك أو الصق البيانات كما هي. سنقارن أول وآخر حركة في يوم كل موظف مع أوقات دوامك، ونحسب الدقائق التي تهمك.</p></div><div className="hero-side-note"><span className="hero-number">01</span><span>إدخال<br />ثم فهم</span></div></section>
           <div className="section-intro"><div><span className="eyebrow">01 / ابدأ من هنا</span><h3>أدخل السجل كما هو</h3></div><p>يكفينا أن نجد: <strong>رقم الموظف، التاريخ، والتوقيت.</strong><br />والرمز الاختياري سيبقى محفوظاً عند التصدير.</p></div>
-          <section className="input-layout"><Card className="input-card"><CardHeader className="input-card-header"><div className="section-title-row"><div className="title-icon"><ScanLine size={20} /></div><div><CardTitle>البيانات الخام</CardTitle><p>الصق النص أو ارفع ملفاً</p></div></div><button className="text-button" onClick={resetSample} title="إعادة المثال الجاهز"><RotateCcw size={15} /> مثال</button></CardHeader><CardContent><textarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} className="data-textarea" aria-label="بيانات الدوام الخام" spellCheck={false} dir="ltr" /><div className={`drop-zone ${isDragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}><div className="drop-icon"><Upload size={18} /></div><div><strong>اسحب الملف إلى هنا</strong><span>أو</span></div><button className="upload-link" onClick={() => fileInputRef.current?.click()}>اختر ملفاً</button><input ref={fileInputRef} type="file" accept=".txt,.csv,.tsv,.log,.json" hidden onChange={handleFileChange} /></div><div className="format-hint"><Info size={14} /> يقبل TXT و CSV و TSV — تتم المعالجة محلياً داخل المتصفح</div></CardContent></Card>
+          <section className="input-layout"><Card className="input-card"><CardHeader className="input-card-header"><div className="section-title-row"><div className="title-icon"><ScanLine size={20} /></div><div><CardTitle>البيانات الخام</CardTitle><p>الصق النص أو ارفع ملفاً</p></div></div><button className="text-button" onClick={resetSample} title="إعادة المثال الجاهز"><RotateCcw size={15} /> مثال</button></CardHeader><CardContent><textarea value={sourceText} onChange={(event) => handleSourceChange(event.target.value)} className="data-textarea" aria-label="بيانات الدوام الخام" spellCheck={false} dir="ltr" /><div className={`drop-zone ${isDragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}><div className="drop-icon"><Upload size={18} /></div><div><strong>اسحب الملف إلى هنا</strong><span>أو</span></div><button className="upload-link" onClick={() => fileInputRef.current?.click()}>اختر ملفاً</button><input ref={fileInputRef} type="file" accept=".txt,.csv,.tsv,.log,.json" hidden onChange={handleFileChange} /></div><div className="format-hint"><Info size={14} /> يقبل TXT و CSV و TSV — تتم المعالجة محلياً داخل المتصفح</div><div className="detected-schema"><div><span className="schema-pulse" /> <strong>فهمت شكل البيانات تلقائياً</strong></div><p>{detection.message} التاريخ من العمود {detection.dateIndex === null ? "غير واضح" : detection.dateIndex + 1} والوقت من العمود {detection.timeIndex === null ? "غير واضح" : detection.timeIndex + 1}.</p></div></CardContent></Card>
             <div className="mapping-column"><Card className={`mapping-card ${isScheduleOpen ? "is-open" : ""}`}><button className="mapping-toggle" onClick={() => setIsScheduleOpen((open) => !open)}><span className="section-title-row"><span className="title-icon title-icon-muted"><Clock3 size={19} /></span><span><strong>أوقات الدوام</strong><small>متى يبدأ وينتهي اليوم؟</small></span></span><ChevronDown size={18} className="chevron" /></button>{isScheduleOpen && <div className="mapping-body"><p>التوقيت بنظام 24 ساعة. بعد انتهاء السماح بدقيقة يبدأ احتساب التأخير.</p><div className="schedule-fields"><label><span>نهاية الدوام</span><input type="text" inputMode="numeric" maxLength={5} placeholder="18:00" dir="ltr" value={schedule.endTime} onChange={(event) => updateSchedule("endTime", event.target.value)} /></label><label><span>سماح النهاية <small>دقيقة</small></span><input type="number" min="0" value={schedule.endGrace} onChange={(event) => updateSchedule("endGrace", event.target.value)} /></label><label><span>بداية الدوام</span><input type="text" inputMode="numeric" maxLength={5} placeholder="09:00" dir="ltr" value={schedule.startTime} onChange={(event) => updateSchedule("startTime", event.target.value)} /></label><label><span>سماح البداية <small>دقيقة</small></span><input type="number" min="0" value={schedule.startGrace} onChange={(event) => updateSchedule("startGrace", event.target.value)} /></label></div><div className="schedule-preview"><span><b>{schedule.startTime}</b> + {formatNumber(schedule.startGrace)} د سماح</span><span><b>{schedule.endTime}</b> − {formatNumber(schedule.endGrace)} د سماح</span></div></div>}</Card><div className="privacy-slip"><Check size={14} /> خصوصيتك محفوظة — لا يوجد تسجيل دخول ولا تخزين سحابي</div></div>
           </section>
           <div className="analyze-row"><div className="analyze-caption"><span className="coral-line" /> أول حركة دخول، وآخر حركة خروج لكل موظف في كل يوم</div><Button className="analyze-button" onClick={analyze} disabled={isAnalyzing}>{isAnalyzing ? <><Loader2 size={18} className="spin" /> جارٍ التحليل...</> : <>حلّل السجلات <ArrowLeft size={18} /></>}</Button></div><Separator className="paper-separator" />
