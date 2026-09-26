@@ -261,6 +261,16 @@ button { cursor: pointer; }
 .metric-alert .metric-label svg { color: var(--mustard); }
 .metric-card strong { display: block; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
 .metric-card span { color: var(--ink-faint); font-size: 10px; }
+.metric-grid > .metric-card:nth-child(1), .metric-grid > .metric-card:nth-child(2) { align-self: start; }
+.minutes-merge-card { position: relative; grid-column: span 2; min-height: 292px; overflow: hidden; border: 0; background: var(--ink); }
+.minutes-merge-card > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.minutes-merge-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(23,50,77,.9) 0%, rgba(23,50,77,.22) 100%); }
+.minutes-merge-metrics { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; padding: 0 13px; }
+.minutes-merge-metrics .metric-card { min-height: 137px; border-color: var(--mustard); background: rgba(252,250,246,.91); }
+.minutes-merge-metrics .metric-card [data-slot="card-content"] { padding: 19px 20px 17px; }
+.minutes-merge-metrics .metric-card strong { color: var(--ink); }
+.minutes-merge-metrics .metric-card span { color: var(--ink-faint); }
+.minutes-merge-card .summary-overlay { z-index: 2; }
 .analysis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
 .status-card { min-height: 292px; background-image: repeating-linear-gradient(0deg, transparent 0, transparent 45px, rgba(217,209,196,.18) 46px); }
 .card-heading-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 24px 15px; }
