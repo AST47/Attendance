@@ -57,6 +57,7 @@ type DetectionInfo = {
   serialIndex: number | null;
   employeeIndex: number | null;
   zeroIndexes: number[];
+  constantIndexes: number[];
   dateIndex: number | null;
   timeIndex: number | null;
   message: string;
@@ -95,23 +96,33 @@ function parseAttendanceText(text: string): ParseResult {
   const valuesByIndex = new Map<number, number[]>();
   numericIndexes.forEach((index) => valuesByIndex.set(index, dataLines.map(({ parts }) => Number(parts[index]))));
   const zeroIndexes = numericIndexes.filter((index) => valuesByIndex.get(index)!.every((value) => value === 0));
+  const constantIndexes = numericIndexes.filter((index) => new Set(valuesByIndex.get(index)!).size === 1);
   const serialIndex = numericIndexes.find((index) => {
-    if (zeroIndexes.includes(index)) return false;
+    if (zeroIndexes.includes(index) || constantIndexes.includes(index)) return false;
     const values = valuesByIndex.get(index)!;
     return values.length > 1 && values.every((value, position) => position === 0 || value === values[position - 1] + 1);
   }) ?? null;
-  const usefulIndexes = numericIndexes.filter((index) => !zeroIndexes.includes(index) && index !== serialIndex);
+  const ignoredIndexes = new Set([...zeroIndexes, ...constantIndexes, ...(serialIndex === null ? [] : [serialIndex])]);
+  const usefulIndexes = numericIndexes.filter((index) => !ignoredIndexes.has(index));
   const employeeIndex = usefulIndexes.find((index) => {
     const values = valuesByIndex.get(index)!;
-    return new Set(values).size < values.length;
+    const countsByDay = new Map<string, number>();
+    values.forEach((value, position) => {
+      const day = dataLines[position].parts[dateIndex] || "";
+      const key = `${day}|${value}`;
+      countsByDay.set(key, (countsByDay.get(key) || 0) + 1);
+    });
+    const dailyCounts = Array.from(countsByDay.values());
+    return new Set(values).size < values.length && dailyCounts.some((count) => count >= 2) && Math.max(...dailyCounts) <= 6;
   }) ?? usefulIndexes[0] ?? null;
   const detection: DetectionInfo = {
     serialIndex,
     employeeIndex,
     zeroIndexes,
+    constantIndexes,
     dateIndex: dateIndex >= 0 ? dateIndex : null,
     timeIndex: timeIndex >= 0 ? timeIndex : null,
-    message: employeeIndex === null ? "لم أجد عموداً واضحاً لرقم الموظف" : `فهمت رقم الموظف من العمود ${employeeIndex + 1}${serialIndex !== null ? `، وتجاهلت رقم التسلسل في العمود ${serialIndex + 1}` : ""}${zeroIndexes.length ? ` وأعمدة الصفر (${zeroIndexes.map((index) => index + 1).join("، ")})` : ""}.`,
+    message: employeeIndex === null ? "لم أجد عموداً واضحاً لرقم الموظف من التكرار اليومي." : `فهمت رقم الموظف من العمود ${employeeIndex + 1}${serialIndex !== null ? `، وتجاهلت رقم التسلسل في العمود ${serialIndex + 1}` : ""}${zeroIndexes.length ? ` وأعمدة الصفر (${zeroIndexes.map((index) => index + 1).join("، ")})` : ""}${constantIndexes.length ? ` والأعمدة الثابتة مثل رقم البصامة (${constantIndexes.map((index) => index + 1).join("، ")})` : ""}.`,
   };
   const rows: Omit<AttendanceRow, "role" | "status" | "lateMinutes" | "earlyMinutes">[] = [];
   parsedLines.forEach(({ line, parts }) => {
