@@ -149,7 +149,7 @@ button { cursor: pointer; }
 .site-header-title { position: relative; z-index: 1; color: var(--paper); font-size: 24px; font-weight: 600; letter-spacing: -.04em; white-space: nowrap; }
 .site-header-title span { color: var(--coral); }
 .site-header-note { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; direction: ltr; }
-.site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.7); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
+.site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.88); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
@@ -163,9 +163,9 @@ button { cursor: pointer; }
 .hero-section::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(245,240,231,.92) 0%, rgba(245,240,231,.7) 54%, rgba(245,240,231,.08) 100%); }
 .hero-copy, .hero-side-note { position: relative; z-index: 1; }
 .hero-ready { position: absolute; left: 24px; top: 21px; z-index: 2; display: flex; align-items: center; gap: 7px; color: var(--moss); font-size: 11px; }
-.hero-copy { max-width: 610px; }
+.hero-copy { max-width: 610px; transform: translateX(-100px); }
 .coral-badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; padding: 6px 10px; border: 1px solid rgba(231,111,81,.38); border-radius: 2px; background: rgba(246,222,213,.77); color: #9b452e; font-size: 11px; font-weight: 600; }
-.hero-copy h2 { margin: 0; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: clamp(42px, 5.2vw, 68px); font-weight: 400; line-height: .98; letter-spacing: -.04em; }
+.hero-copy h2 { margin: 0; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: clamp(42px, 5.2vw, 68px); font-weight: 400; line-height: 1.08; letter-spacing: -.04em; }
 .hero-copy h2 em, .guide-copy h3 em { color: var(--coral); font-style: normal; }
 .hero-copy p { max-width: 530px; margin: 21px 0 0; color: #536876; font-size: 14px; line-height: 1.9; }
 .hero-side-note { display: flex; align-items: flex-start; gap: 9px; padding-top: 13px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
@@ -467,14 +467,15 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note { flex: 0 0 auto; gap: 7px; }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
-  .site-header-note p { min-height: 40px; font-size: 8px; line-height: 1.55; }
+  .site-header-note p { min-height: 40px; color: rgba(245,240,231,.92); font-size: 8px; line-height: 1.55; }
   .hero-ready { left: 17px; top: 17px; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
   .hero-section::before { background: linear-gradient(90deg, rgba(245,240,231,.96) 0%, rgba(245,240,231,.77) 76%, rgba(245,240,231,.22) 100%); }
-  .hero-copy h2 { font-size: 46px; }
+  .hero-copy { transform: none; }
+  .hero-copy h2 { font-size: 46px; line-height: 1.08; }
   .hero-copy p { max-width: 95%; font-size: 12px; }
-  .hero-side-note { position: absolute; right: 25px; bottom: 25px; }
+  .hero-side-note { position: absolute; right: auto; bottom: 25px; left: 25px; }
   .section-intro { display: block; margin-top: 40px; }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
