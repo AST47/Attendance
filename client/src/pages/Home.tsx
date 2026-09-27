@@ -391,7 +391,7 @@ export default function Home() {
 
   return (
     <main className="app-shell" dir="rtl">
-      <section className="workspace"><header className="site-header"><div className="site-header-title">سجل الدوام <span>بوضوح</span> تام</div><div className="site-header-note"><div className="rail-stamp">LOCAL<br /><strong>FIRST</strong></div><p>بياناتك تُعالج في متصفحك ولا تُرفع إلى أي مكان.</p></div></header>
+      <section className="workspace"><header className="site-header"><div className="site-header-title">سجل الدوام <span>بوضوح</span> تام</div><div className="site-header-note"><div className="rail-stamp">LOCAL<br /><strong>FIRST</strong></div><p>بياناتك تُعالج في متصفحك<br />ولا تُرفع إلى أي مكان.</p></div></header>
         <div className="content-wrap">
           <section className="hero-section" style={{ backgroundImage: `url(${HERO_IMAGE})` }}><div className="hero-ready"><span className="live-dot" /> <span>جاهز للعمل</span></div><div className="hero-copy"><Badge className="coral-badge"><Sparkles size={14} /> نسخة تجريبية عملية</Badge><h2>خلّي سجل الدوام<br /><em>يحكي القصة كاملة.</em></h2><p>ارفع ملفك أو الصق البيانات كما هي. سنقارن أول وآخر حركة في يوم كل موظف مع أوقات دوامك، ونحسب الدقائق التي تهمك.</p></div><div className="hero-side-note"><span className="hero-number">01</span><span>إدخال<br />ثم فهم</span></div></section>
           <div className="section-intro"><div><span className="eyebrow">01 / ابدأ من هنا</span><h3>أدخل السجل كما هو</h3></div><p>يكفينا أن نجد: <strong>رقم الموظف، التاريخ، والتوقيت.</strong><br />والرمز الاختياري سيبقى محفوظاً عند التصدير.</p></div>

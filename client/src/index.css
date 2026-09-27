@@ -149,7 +149,7 @@ button { cursor: pointer; }
 .site-header-title { position: relative; z-index: 1; color: var(--paper); font-size: 24px; font-weight: 600; letter-spacing: -.04em; white-space: nowrap; }
 .site-header-title span { color: var(--coral); }
 .site-header-note { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; direction: ltr; }
-.site-header-note p { margin: 0; color: rgba(245,240,231,.7); font-size: 10px; line-height: 1.5; white-space: nowrap; direction: rtl; }
+.site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.7); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
@@ -467,7 +467,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note { flex: 0 0 auto; gap: 7px; }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
-  .site-header-note p { font-size: 7px; }
+  .site-header-note p { min-height: 40px; font-size: 8px; line-height: 1.55; }
   .hero-ready { left: 17px; top: 17px; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
