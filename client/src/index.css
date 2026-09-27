@@ -295,6 +295,8 @@ button { cursor: pointer; }
 .metric-main .metric-index { color: var(--coral); }
 .metric-alert .metric-index { color: var(--mustard); }
 .metric-card.metric-main { border-top-color: var(--coral); }
+.dashboard-grid > .metric-card.metric-main { border-top: 1px solid var(--line); border-left: 3px solid var(--coral); border-radius: 0 var(--radius) var(--radius) 0; }
+.dashboard-grid > .metric-card:nth-child(2) { border-top: 1px solid var(--line); border-right: 3px solid var(--ink); border-radius: var(--radius) 0 0 var(--radius); }
 .metric-card.metric-alert { border-top-color: var(--mustard); }
 .metric-card [data-slot="card-content"] { padding: 19px 20px 17px; }
 .dashboard-grid > .metric-card, .minutes-merge-metrics .metric-card { text-align: center; }
