@@ -159,16 +159,16 @@ button { cursor: pointer; }
 .live-dot { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: var(--moss); box-shadow: 0 0 0 4px var(--moss-soft); }
 .content-wrap { width: min(1180px, calc(100% - 80px)); margin: 0 auto; padding: 50px 0 78px; }
 
-.hero-section { position: relative; min-height: 292px; display: flex; align-items: flex-end; justify-content: space-between; padding: 42px 48px 42px 53px; overflow: hidden; background-color: var(--paper-deep); background-size: cover; background-position: center; border: 1px solid rgba(217,209,196,.65); box-shadow: 10px 12px 0 rgba(23,50,77,.035); }
+.hero-section { position: relative; min-height: 292px; display: flex; align-items: flex-end; justify-content: space-between; padding: 42px 48px 42px 53px; overflow: hidden; background-color: var(--paper-deep); background-size: 100% 100%; background-position: center; border: 1px solid rgba(217,209,196,.65); box-shadow: 10px 12px 0 rgba(23,50,77,.035); }
 .hero-section::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(245,240,231,.92) 0%, rgba(245,240,231,.7) 54%, rgba(245,240,231,.08) 100%); }
 .hero-copy, .hero-side-note { position: relative; z-index: 1; }
-.hero-ready { position: absolute; left: 4%; top: 21px; z-index: 2; display: flex; align-items: center; gap: 7px; color: var(--moss); font-size: 11px; }
+.hero-ready { position: absolute; left: 2%; top: 21px; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 7px; width: 16%; color: var(--moss); font-size: 11px; }
 .hero-copy { position: absolute; right: 20%; bottom: 20px; width: 60%; max-width: 610px; transform: none; }
 .coral-badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; padding: 6px 10px; border: 1px solid rgba(231,111,81,.38); border-radius: 2px; background: rgba(246,222,213,.77); color: #9b452e; font-size: 11px; font-weight: 600; }
 .hero-copy h2 { margin: 0; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: clamp(42px, 5.2vw, 68px); font-weight: 400; line-height: 1.08; letter-spacing: -.04em; }
 .hero-copy h2 em, .guide-copy h3 em { color: var(--coral); font-style: normal; }
 .hero-copy p { max-width: 530px; margin: 21px 0 0; color: #536876; font-size: 14px; line-height: 1.9; }
-.hero-side-note { position: absolute; left: 4%; bottom: 42px; display: flex; align-items: flex-start; gap: 9px; padding-top: 13px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+.hero-side-note { position: absolute; left: 2%; bottom: 42px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 16%; padding-top: 13px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; text-align: center; }
 .hero-number { color: var(--coral); font-size: 24px; line-height: 1; font-weight: 600; }
 
 .section-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; margin: 56px 0 24px; }
@@ -468,14 +468,14 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
   .site-header-note p { min-height: 40px; color: rgba(245,240,231,.92); font-size: 8px; line-height: 1.55; }
-  .hero-ready { left: 17px; top: 17px; font-size: 10px; }
+  .hero-ready { left: 2%; top: 17px; width: 16%; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
   .hero-section::before { background: linear-gradient(90deg, rgba(245,240,231,.96) 0%, rgba(245,240,231,.77) 76%, rgba(245,240,231,.22) 100%); }
   .hero-copy { position: absolute; right: 20%; bottom: 20px; width: 60%; max-width: none; }
   .hero-copy h2 { font-size: 46px; line-height: 1.08; }
   .hero-copy p { max-width: 95%; font-size: 12px; }
-  .hero-side-note { position: absolute; right: auto; bottom: 25px; left: 4%; }
+  .hero-side-note { position: absolute; right: auto; bottom: 25px; left: 2%; width: 16%; }
   .section-intro { display: block; margin-top: 40px; }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
