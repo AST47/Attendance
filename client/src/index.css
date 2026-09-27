@@ -140,6 +140,7 @@ button { cursor: pointer; }
 .rail-footer p { margin: 12px 0 0; }
 .rail-stamp { width: 53px; height: 53px; display: grid; place-content: center; border: 1px solid rgba(245,240,231,.28); border-radius: 50%; text-align: center; font-size: 8px; line-height: 1.15; letter-spacing: .14em; transform: rotate(-9deg); }
 .rail-stamp strong { color: var(--coral); font-size: 9px; }
+.mobile-rail-content { display: none; }
 
 .workspace { min-width: 0; flex: 1; }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
@@ -442,12 +443,15 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 
 @media (max-width: 760px) {
   .app-shell { display: block; }
-  .brand-rail { position: relative; width: 100%; height: auto; min-height: 92px; flex-direction: row; align-items: center; padding: 17px 20px; }
-  .brand-rail::after, .rail-rule, .rail-motif, .rail-note, .rail-footer { display: none; }
-  .brand-lockup h1 { font-size: 26px; }
-  .brand-mark { width: 36px; height: 36px; flex-basis: 36px; }
-  .topbar { height: 57px; padding: 0 20px; }
-  .topbar-meta { font-size: 10px; }
+  .brand-rail { position: relative; width: 100%; height: auto; min-height: 132px; flex-direction: row; align-items: stretch; padding: 18px 20px 16px; }
+  .brand-rail::after, .desktop-rail-content, .desktop-rail-footer, .rail-rule, .rail-motif, .rail-note { display: none; }
+  .mobile-rail-content { display: flex; flex: 1; flex-direction: column; justify-content: space-between; gap: 12px; direction: rtl; }
+  .mobile-rail-title { color: var(--paper); font-size: 19px; font-weight: 600; letter-spacing: -.03em; text-align: right; }
+  .mobile-rail-title span { color: var(--coral); }
+  .mobile-rail-note { display: flex; align-items: center; justify-content: space-between; gap: 14px; direction: ltr; }
+  .mobile-rail-note p { margin: 0; color: rgba(245,240,231,.7); font-size: 9px; line-height: 1.7; text-align: right; direction: rtl; }
+  .mobile-rail-note .rail-stamp { width: 47px; height: 47px; flex: 0 0 47px; }
+  .topbar { display: none; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
   .hero-section::before { background: linear-gradient(90deg, rgba(245,240,231,.96) 0%, rgba(245,240,231,.77) 76%, rgba(245,240,231,.22) 100%); }
