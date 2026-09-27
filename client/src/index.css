@@ -306,10 +306,15 @@ button { cursor: pointer; }
 .metric-card strong { display: block; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
 .metric-card span { color: var(--ink-faint); font-size: 10px; }
 .dashboard-grid > .metric-card:nth-child(1), .dashboard-grid > .metric-card:nth-child(2) { align-self: start; }
-.minutes-merge-card { position: relative; grid-column: span 2; grid-row: span 2; min-height: 292px; overflow: hidden; border: 0; background: var(--ink); }
+.minutes-merge-card { position: relative; grid-column: span 2; grid-row: span 2; min-height: 360px; overflow: hidden; border: 0; background: var(--ink); }
 .minutes-merge-card > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
 .minutes-merge-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(23,50,77,.9) 0%, rgba(23,50,77,.22) 100%); }
-.minutes-merge-metrics { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; padding: 0 13px; }
+.payable-card { position: relative; z-index: 2; height: 78px; margin: 13px 13px 0; overflow: hidden; border: 1px solid rgba(196,157,67,.75); background: rgba(252,250,246,.94); text-align: center; }
+.payable-card [data-slot="card-content"] { display: flex; align-items: center; justify-content: center; gap: 13px; height: 100%; padding: 9px 16px; }
+.payable-label { color: var(--ink-soft); font-size: 11px; }
+.payable-card strong { color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 31px; font-weight: 400; line-height: .9; }
+.payable-card span { color: var(--ink-faint); font-size: 9px; }
+.minutes-merge-metrics { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 13px; padding: 0 13px; }
 .minutes-merge-metrics .metric-card { min-height: 137px; border-color: var(--mustard); background: rgba(252,250,246,.91); }
 .minutes-merge-metrics .metric-card [data-slot="card-content"] { padding: 19px 20px 17px; }
 .minutes-merge-metrics .metric-card strong { color: var(--ink); }
