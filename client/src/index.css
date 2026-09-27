@@ -168,7 +168,7 @@ button { cursor: pointer; }
 .hero-copy h2 { margin: 0; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: clamp(42px, 5.2vw, 68px); font-weight: 400; line-height: 1.08; letter-spacing: -.04em; }
 .hero-copy h2 em, .guide-copy h3 em { color: var(--coral); font-style: normal; }
 .hero-copy p { max-width: 530px; margin: 21px 0 0; color: #536876; font-size: 14px; line-height: 1.9; }
-.hero-side-note { position: absolute; left: 2%; bottom: 42px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 16%; padding-top: 13px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; text-align: center; }
+.hero-side-note { position: absolute; left: 2%; bottom: 42px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 16%; padding-top: 13px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; text-align: center; }
 .hero-number { color: var(--coral); font-size: 24px; line-height: 1; font-weight: 600; }
 
 .section-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; margin: 56px 0 24px; }
