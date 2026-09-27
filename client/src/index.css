@@ -471,6 +471,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .metric-card { min-height: 116px; }
   .metric-card [data-slot="card-content"] { padding: 16px; }
   .metric-card strong { font-size: 32px; }
+  .dashboard-grid > .minutes-merge-card { grid-column: 1 / -1; grid-row: auto; min-height: 0; }
+  .minutes-merge-card .summary-overlay { position: relative; top: auto; right: auto; bottom: auto; left: auto; min-height: 132px; margin: 13px; padding: 18px 14px; justify-content: center; }
   .table-header { align-items: flex-start; flex-direction: column; padding: 18px; }
   .table-controls { width: 100%; }
   .search-field { flex: 1; }
