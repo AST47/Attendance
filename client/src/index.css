@@ -196,8 +196,10 @@ button { cursor: pointer; }
 .text-button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border: 0; background: transparent; color: var(--ink-faint); font-size: 11px; transition: color .18s ease, transform .18s ease; }
 .text-button:hover { color: var(--coral); transform: translateY(-1px); }
 .input-card [data-slot="card-content"] { padding: 0 24px 23px; }
-.input-helper, .names-card-body > p { height: 34px; display: flex; align-items: center; margin: 0 0 11px !important; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
-.data-textarea, .mapping-textarea { width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+.input-helper, .names-card-body > p, .exceptions-content > p, .mapping-body > p { min-height: 34px; display: flex; flex-direction: column; justify-content: center; gap: 4px; margin: 0 0 11px !important; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+.input-helper strong { color: var(--ink); font-weight: 600; }
+.data-textarea, .mapping-textarea, .schedule-fields input, .payroll-rate-fields input, .payroll-settings select, .exception-row select { width: 100%; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+.data-textarea, .mapping-textarea { resize: vertical; }
 .data-textarea { min-height: 190px; padding: 16px; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.9; }
 .mapping-textarea { min-height: 85px; padding: 11px 13px; font-size: 12px; line-height: 1.8; }
 .data-textarea:focus, .mapping-textarea:focus, .search-field input:focus, .status-filter select:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
@@ -244,7 +246,7 @@ button { cursor: pointer; }
 .schedule-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 9px; }
 .schedule-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 10px; }
 .schedule-fields label small { color: var(--ink-faint); font-size: 9px; }
-.schedule-fields input { width: 100%; height: 35px; padding: 0 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 12px; outline: none; }
+.schedule-fields input { height: 35px; padding: 0 9px; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
 .schedule-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
 .schedule-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .schedule-preview span { padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
@@ -253,10 +255,10 @@ button { cursor: pointer; }
 .payroll-settings label, .payroll-rate-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 10px; }
 .payroll-settings label span { display: flex; justify-content: space-between; gap: 5px; }
 .payroll-settings label small { color: var(--ink-faint); font-size: 9px; }
-.payroll-settings select { width: 100%; min-height: 78px; padding: 5px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-size: 10px; outline: none; }
+.payroll-settings select { min-height: 78px; padding: 5px; font-size: 10px; }
 .payroll-settings select:focus, .payroll-rate-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
 .payroll-rate-fields { display: grid; grid-template-columns: 1fr; gap: 9px; }
-.payroll-rate-fields input { width: 100%; height: 35px; padding: 0 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 12px; outline: none; }
+.payroll-rate-fields input { height: 35px; padding: 0 9px; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
 .mapping-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 .mapping-preview span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
 .mapping-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
