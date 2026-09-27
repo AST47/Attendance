@@ -220,9 +220,10 @@ button { cursor: pointer; }
 .names-drop-zone svg { color: var(--coral); }
 .names-detection { margin-top: 13px; padding: 9px 11px; border: 1px solid var(--moss-soft); background: rgba(226,233,221,.48); color: var(--ink-soft); font-size: 10px; }
 .names-detection > div:first-child { display: flex; align-items: center; gap: 6px; color: var(--moss); }
-.name-detection-row { display: grid; grid-template-columns: 68px 1fr; gap: 9px; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(116,139,104,.16); }
+.name-detection-row { display: grid; grid-template-columns: 58px 1fr auto; gap: 7px; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(116,139,104,.16); }
 .name-detection-row b { color: var(--coral); font-family: "IBM Plex Mono", monospace; font-size: 9px; }
 .name-detection-row span { color: var(--ink-soft); font-size: 10px; }
+.name-detection-row span:last-child { color: var(--moss); font-family: "IBM Plex Mono", monospace; font-size: 9px; }
 .daily-employee-name { display: inline-block; margin-right: 7px; color: var(--ink-soft); font-size: 10px; }
 .chevron { color: var(--ink-faint); transition: transform .2s ease; }
 .mapping-card.is-open .chevron { transform: rotate(180deg); }
@@ -237,6 +238,14 @@ button { cursor: pointer; }
 .schedule-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .schedule-preview span { padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
 .schedule-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
+.payroll-settings { display: grid; grid-template-columns: 1.15fr .85fr; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.payroll-settings label, .payroll-rate-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 10px; }
+.payroll-settings label span { display: flex; justify-content: space-between; gap: 5px; }
+.payroll-settings label small { color: var(--ink-faint); font-size: 9px; }
+.payroll-settings select { width: 100%; min-height: 78px; padding: 5px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-size: 10px; outline: none; }
+.payroll-settings select:focus, .payroll-rate-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
+.payroll-rate-fields { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.payroll-rate-fields input { width: 100%; height: 35px; padding: 0 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 12px; outline: none; }
 .mapping-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 .mapping-preview span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
 .mapping-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
@@ -347,6 +356,13 @@ button { cursor: pointer; }
 .daily-card { margin-top: 18px; border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
 .daily-card .table-scroll { max-height: 330px; overflow: auto; }
 .daily-table th, .daily-table td { padding-inline: 18px; }
+.payroll-card { margin-top: 18px; border: 1px solid var(--line); border-top: 3px solid var(--coral); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
+.payroll-table { min-width: 980px; }
+.payroll-table th, .payroll-table td { white-space: nowrap; }
+.payroll-table td b { color: var(--coral); }
+.payroll-totals { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.payroll-totals span { padding: 8px 10px; border: 1px solid var(--line); background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
+.payroll-totals b { color: var(--ink); font-family: "IBM Plex Mono", monospace; }
 .table-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 24px 17px; border-bottom: 1px solid var(--line); }
 .table-title { display: flex; align-items: center; gap: 11px; }
 .table-title [data-slot="card-title"] { color: var(--ink); font-size: 15px; font-weight: 600; }
