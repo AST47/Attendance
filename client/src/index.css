@@ -178,7 +178,7 @@ button { cursor: pointer; }
 .section-intro > p strong { color: var(--ink); font-weight: 600; }
 .section-intro > .privacy-slip { flex: 0 0 auto; margin: 0; align-self: center; }
 
-.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "privacy privacy"; gap: 22px; align-items: start; }
+.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "schedule analyze"; gap: 22px; align-items: start; }
 .input-layout > .input-card { grid-area: raw; }
 .input-layout > .exceptions-card { grid-area: exceptions; width: 163%; justify-self: end; }
 .input-layout > .mapping-column { display: contents; }
@@ -270,7 +270,7 @@ button { cursor: pointer; }
 .exceptions-content > p { margin: 0 0 12px; color: var(--ink-faint); font-size: 10px; }
 .exception-add-button { width: 100%; height: 32px; margin-top: 10px; justify-content: center; padding-inline: 11px; border-color: var(--coral); color: var(--coral); font-size: 10px; }
 .exception-add-button:hover { background: var(--coral-soft); }
-.exceptions-analyze-button { width: 100%; margin-top: 14px; }
+.exceptions-analyze-button { grid-area: analyze; width: 100%; margin-top: 0; justify-self: stretch; }
 .exception-row { display: grid; grid-template-columns: 1fr 1.35fr 1.25fr 28px; gap: 8px; align-items: end; margin-top: 10px; padding: 11px; border: 1px solid var(--line); background: rgba(247,243,235,.72); }
 .exception-row label { display: flex; min-width: 0; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 9px; }
 .exception-row select { width: 100%; height: 33px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper-white); color: var(--ink); font-size: 10px; outline: none; }
@@ -448,7 +448,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 @media (max-width: 1080px) {
   .content-wrap { width: min(100% - 48px, 920px); }
   .brand-rail { width: 178px; flex-basis: 178px; padding-inline: 20px; }
-  .input-layout, .analysis-grid { grid-template-columns: 1fr; grid-template-areas: none; }
+  .input-layout { grid-template-columns: 1fr; grid-template-areas: "raw" "exceptions" "analyze" "schedule" "names"; }
+  .analysis-grid { grid-template-columns: 1fr; grid-template-areas: none; }
   .input-layout > .input-card, .input-layout > .exceptions-card, .input-layout > .mapping-column > .mapping-card:first-child, .input-layout > .mapping-column > .employee-names-card, .input-layout > .mapping-column > .privacy-slip { grid-area: auto; width: auto; justify-self: stretch; }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .summary-visual-card { min-height: 235px; }
@@ -487,7 +488,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .section-intro > .privacy-slip { max-width: 150px; font-size: 9px; line-height: 1.5; }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
-  .input-layout { gap: 15px; }
+  .input-layout { gap: 15px; grid-template-areas: "raw" "exceptions" "analyze" "schedule" "names"; }
   .exceptions-card { grid-column: auto; }
   .exception-row { grid-template-columns: 1fr 1fr; }
   .exception-row label:nth-child(3) { grid-column: 1 / -1; }
