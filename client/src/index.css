@@ -293,13 +293,21 @@ button { cursor: pointer; }
 .results-intro { margin-top: 50px; }
 .results-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
 .results-title-row h3 { margin: 0; }
+.results-controls { display: flex; align-items: center; gap: 10px; }
 .employee-filter-inline { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 35px; padding: 0 9px; border: 1px solid var(--coral); background: var(--paper-white); color: var(--ink-soft); font-size: 10px; }
 .employee-filter-inline span { color: var(--coral); font-weight: 600; }
 .employee-filter-inline select { appearance: none; min-width: 94px; padding: 0 17px 0 2px; border: 0; outline: 0; background: transparent; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 11px; cursor: pointer; }
 .employee-filter-inline svg { position: absolute; left: 8px; pointer-events: none; color: var(--ink-faint); }
-.month-filter-inline { display: inline-flex; align-items: center; gap: 6px; height: 35px; padding: 0 9px; border: 1px solid var(--line); background: var(--paper-white); color: var(--ink-soft); font-size: 10px; }
-.month-filter-inline span { color: var(--ink-faint); font-weight: 600; }
-.month-filter-inline input { width: 112px; border: 0; outline: 0; background: transparent; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+.date-filter-inline { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 35px; padding: 0 9px; border: 1px solid var(--line); background: var(--paper-white); color: var(--ink-soft); font-size: 10px; }
+.date-filter-inline span { color: var(--ink-faint); font-weight: 600; }
+.date-filter-inline select { appearance: none; min-width: 100px; padding: 0 17px 0 2px; border: 0; outline: 0; background: transparent; color: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 11px; cursor: pointer; }
+.date-filter-inline svg { position: absolute; left: 8px; pointer-events: none; color: var(--ink-faint); }
+.export-menu { position: relative; z-index: 5; }
+.export-menu-trigger { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper-white); color: var(--ink); cursor: pointer; transition: background .18s ease, border-color .18s ease; }
+.export-menu-trigger:hover { border-color: var(--ink); background: var(--paper-white); }
+.export-menu-list { position: absolute; top: calc(100% + 6px); left: 0; min-width: 145px; padding: 5px; border: 1px solid var(--line); background: var(--paper-white); box-shadow: 5px 6px 0 rgba(23,50,77,.08); }
+.export-menu-list button { width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 8px 9px; border: 0; background: transparent; color: var(--ink); font-size: 11px; text-align: right; cursor: pointer; }
+.export-menu-list button:hover { background: var(--coral-soft); color: var(--coral); }
 .results-actions { display: flex; align-items: center; gap: 17px; }
 .processed-label { display: flex; align-items: center; gap: 7px; color: var(--moss); font-size: 11px; }
 .processed-label .live-dot { width: 6px; height: 6px; box-shadow: none; }
@@ -497,6 +505,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .analyze-button { width: 100%; }
   .analyze-caption { align-self: flex-start; }
   .results-intro { display: flex; align-items: flex-start; flex-direction: column; gap: 16px; }
+  .results-controls { width: 100%; flex-wrap: wrap; justify-content: flex-start; }
   .results-actions { width: 100%; justify-content: space-between; }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
   .metric-card { min-height: 116px; }
