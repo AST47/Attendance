@@ -176,6 +176,7 @@ button { cursor: pointer; }
 .section-intro h3 { margin: 0; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 32px; font-weight: 400; letter-spacing: -.025em; }
 .section-intro > p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.8; text-align: left; }
 .section-intro > p strong { color: var(--ink); font-weight: 600; }
+.section-intro > .privacy-slip { flex: 0 0 auto; margin: 0; align-self: center; }
 
 .input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "privacy privacy"; gap: 22px; align-items: start; }
 .input-layout > .input-card { grid-area: raw; }
@@ -249,16 +250,16 @@ button { cursor: pointer; }
 .schedule-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .schedule-preview span { padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
 .schedule-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
-.payroll-settings { display: grid; grid-template-columns: 1.15fr .85fr; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.payroll-settings { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .payroll-settings label, .payroll-rate-fields label { display: flex; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 10px; }
 .payroll-settings label span { display: flex; justify-content: space-between; gap: 5px; }
 .payroll-settings label small { color: var(--ink-faint); font-size: 9px; }
 .payroll-settings select { min-height: 78px; padding: 5px; font-size: 10px; }
-.weekday-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; min-height: 78px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; }
+.weekday-checklist { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px 8px; min-height: 78px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; }
 .weekday-checklist label { display: flex; align-items: center; gap: 7px; color: var(--ink-soft); font-size: 10px; cursor: pointer; }
 .weekday-checklist input { width: 14px; height: 14px; margin: 0; accent-color: var(--coral); }
 .payroll-settings select:focus, .payroll-rate-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
-.payroll-rate-fields { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.payroll-rate-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .payroll-rate-fields input { height: 35px; padding: 0 9px; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
 .mapping-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 .mapping-preview span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; background: var(--paper-deep); color: var(--ink-soft); font-size: 10px; }
@@ -480,7 +481,9 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .hero-copy h2 { font-size: 46px; line-height: 1.08; }
   .hero-copy p { max-width: 95%; font-size: 12px; }
   .hero-side-note { position: absolute; right: auto; bottom: 25px; left: 2%; width: 16%; }
-  .section-intro { display: block; margin-top: 40px; }
+  .section-intro { display: flex; align-items: flex-end; gap: 10px; margin-top: 40px; }
+  .section-intro > div:first-child { min-width: 0; }
+  .section-intro > .privacy-slip { max-width: 150px; font-size: 9px; line-height: 1.5; }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
   .input-layout { gap: 15px; }
