@@ -190,7 +190,7 @@ button { cursor: pointer; }
 .input-card, .employee-names-card { align-self: stretch; height: 100%; box-sizing: border-box; }
 .section-title-row { display: flex; align-items: center; gap: 11px; }
 .title-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 36px; border-radius: 2px; background: var(--coral-soft); color: var(--coral); }
-.title-icon-muted { background: var(--paper-deep); color: var(--ink-soft); }
+.title-icon-muted { background: var(--coral-soft); color: var(--coral); }
 .section-title-row h3, .section-title-row [data-slot="card-title"], .section-title-row strong { margin: 0; color: var(--ink); font-size: 15px; font-weight: 600; }
 .section-title-row p, .section-title-row small { display: block; margin-top: 3px; color: var(--ink-faint); font-size: 11px; font-weight: 400; }
 .text-button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border: 0; background: transparent; color: var(--ink-faint); font-size: 11px; transition: color .18s ease, transform .18s ease; }
@@ -204,7 +204,7 @@ button { cursor: pointer; }
 .mapping-textarea { min-height: 85px; padding: 11px 13px; font-size: 12px; line-height: 1.8; }
 .data-textarea:focus, .mapping-textarea:focus, .search-field input:focus, .status-filter select:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
 .drop-zone { min-height: 72px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 13px; padding: 14px; border: 1px dashed #bdb8ae; border-radius: 2px; background: rgba(245,240,231,.58); color: var(--ink-soft); font-size: 11px; transition: background .18s ease, border-color .18s ease; }
-.drop-zone.is-dragging, .drop-zone:hover { border-color: var(--coral); background: var(--coral-soft); }
+.drop-zone.is-dragging, .drop-zone:hover, .names-drop-zone:hover { border-color: var(--coral); background: var(--coral-soft); }
 .drop-zone > div:nth-child(2) { display: flex; align-items: center; gap: 7px; }
 .drop-zone strong { color: var(--ink); font-weight: 600; }
 .drop-zone span { color: var(--ink-faint); }
@@ -229,8 +229,6 @@ button { cursor: pointer; }
 .employee-names-textarea { min-height: 92px; }
 .names-card-body { display: flex; flex-direction: column; }
 .names-card-body .employee-names-textarea { min-height: 190px; }
-.names-drop-zone { min-height: 72px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 13px; padding: 13px; border: 1px dashed #bdb8ae; border-radius: 2px; background: rgba(245,240,231,.58); color: var(--ink-soft); font-size: 10px; }
-.names-drop-zone svg { color: var(--coral); }
 .names-detection { margin-top: 13px; padding: 9px 11px; border: 1px solid var(--moss-soft); background: rgba(226,233,221,.48); color: var(--ink-soft); font-size: 10px; }
 .names-detection > div:first-child { display: flex; align-items: center; gap: 6px; color: var(--moss); }
 .name-detection-row { display: grid; grid-template-columns: 58px 1fr auto; gap: 7px; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(116,139,104,.16); }
@@ -256,6 +254,9 @@ button { cursor: pointer; }
 .payroll-settings label span { display: flex; justify-content: space-between; gap: 5px; }
 .payroll-settings label small { color: var(--ink-faint); font-size: 9px; }
 .payroll-settings select { min-height: 78px; padding: 5px; font-size: 10px; }
+.weekday-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; min-height: 78px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 2px; background: #f7f3eb; }
+.weekday-checklist label { display: flex; align-items: center; gap: 7px; color: var(--ink-soft); font-size: 10px; cursor: pointer; }
+.weekday-checklist input { width: 14px; height: 14px; margin: 0; accent-color: var(--coral); }
 .payroll-settings select:focus, .payroll-rate-fields input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
 .payroll-rate-fields { display: grid; grid-template-columns: 1fr; gap: 9px; }
 .payroll-rate-fields input { height: 35px; padding: 0 9px; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
