@@ -316,6 +316,7 @@ button { cursor: pointer; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
 .metric-card { position: relative; min-height: 137px; border-top: 3px solid var(--ink); border-radius: 0 0 var(--radius) var(--radius); background-image: repeating-linear-gradient(0deg, transparent 0, transparent 33px, rgba(217,209,196,.20) 34px); }
 .metric-index { margin-bottom: 14px; color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: .06em; }
+.summary-card-title { display: block; margin: 0 0 14px; color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1.2; letter-spacing: 0; text-align: center; }
 .metric-main .metric-index { color: var(--coral); }
 .metric-alert .metric-index { color: var(--mustard); }
 .metric-card.metric-main { border-top-color: var(--coral); }
@@ -337,7 +338,7 @@ button { cursor: pointer; }
 .minutes-merge-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(23,50,77,.9) 0%, rgba(23,50,77,.22) 100%); }
 .payable-card { position: relative; z-index: 2; height: 137px; margin: 13px 13px 0; overflow: hidden; border: 1px solid var(--line); border-bottom: 3px solid var(--mustard); border-radius: var(--radius) var(--radius) 0 0; background: rgba(252,250,246,.94); text-align: center; }
 .payable-card [data-slot="card-content"] { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 0; height: 100%; padding: 12px 16px; }
-.payable-label { color: var(--coral); font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 600; }
+.payable-label { color: var(--coral); }
 .payable-mainline { display: flex; align-items: baseline; justify-content: center; gap: 13px; }
 .payable-card strong { color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 31px; font-weight: 400; line-height: .9; }
 .payable-card span { color: var(--ink-faint); font-size: 9px; }
