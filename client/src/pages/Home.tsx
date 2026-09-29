@@ -40,7 +40,9 @@ const SAMPLE_INPUT = `1001\t2025-09-01\t08:03
 1003\t2025-09-02\t08:52
 1003\t2025-09-02\t18:00
 1001\t2025-09-02\t09:21
-1001\t2025-09-02\t17:58`;
+1001\t2025-09-02\t17:58
+1002\t2025-09-03\tغياب
+1003\t2025-09-04\tغياب`;
 
 const DEFAULT_SCHEDULE = { endTime: "18:00", endGrace: 0, startTime: "09:00", startGrace: 15, weekendDays: ["الجمعة", "السبت"], overtimeMultiplier: 2, deductionMultiplier: 1 };
 const SAMPLE_NAMES = `1001\tأحمد علي\t750000
@@ -58,18 +60,19 @@ type AttendanceRow = {
   code: string;
   raw: string;
   role: "دخول" | "خروج" | "حركة";
-  status: "ضمن الوقت" | "متأخر" | "خروج مبكر" | "استثناء" | "حركة";
+  status: "ضمن الوقت" | "متأخر" | "دخول متأخر" | "خروج مبكر" | "غياب" | "استثناء" | "حركة";
   lateMinutes: number;
   earlyMinutes: number;
   origin: "أصلية" | "مضافة تلقائياً";
   adjustment: string;
   exception?: ExceptionKind;
   excludedDay?: boolean;
+  demoStatus?: "غياب";
 };
 type EmployeeProfile = { name: string; salary: number };
 type PayrollLine = { id: string; name: string; salary: number; workdays: number; dailyHours: number; hourlyRate: number; overtimeHours: number; overtimeValue: number; deductionHours: number; deductionValue: number; net: number };
 type CleaningSummary = { addedEntries: number; addedExits: number; duplicatesRemoved: number };
-type ParsedRow = Pick<AttendanceRow, "id" | "employeeName" | "date" | "time" | "code" | "raw">;
+type ParsedRow = Pick<AttendanceRow, "id" | "employeeName" | "date" | "time" | "code" | "raw"> & { demoStatus?: "غياب" };
 type DetectionInfo = {
   serialIndex: number | null;
   employeeIndex: number | null;
@@ -175,6 +178,11 @@ function parseAttendanceText(text: string): ParseResult {
     const timeMatch = line.match(/\b([01]?\d|2[0-3]):[0-5]\d(?:\s?[AP]M)?\b/i);
     const employee = detection.employeeIndex === null ? "" : parts[detection.employeeIndex]?.replace(/\D/g, "") || "";
     const codeCandidate = parts.find((part, index) => index !== dateIndex && index !== timeIndex && index !== detection.employeeIndex && /^\d+$/.test(part)) || "";
+    const isDemoAbsence = parts.some((part) => part === "غياب");
+    if (isDemoAbsence && dateMatch && employee) {
+      rows.push({ id: employee, employeeName: "", date: dateMatch[1], time: "—", code: "", raw: line, demoStatus: "غياب" });
+      return;
+    }
     if (!dateMatch || !timeMatch || !employee) {
       if (!/^((رقم|التاريخ|date|id|employee|time|code|status)\b)/i.test(line)) invalid.push(line);
       return;
@@ -194,6 +202,8 @@ function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, em
     groups.get(key)!.push(row);
   });
   const normalized = Array.from(groups.values()).flatMap((group) => {
+    const demoAbsence = group.find((row) => row.demoStatus === "غياب");
+    if (demoAbsence) return [{ ...demoAbsence, employeeName: employeeNames[demoAbsence.id] || "", role: "حركة" as const, status: "غياب" as const, lateMinutes: 0, earlyMinutes: 0, origin: "أصلية" as const, adjustment: "غياب تجريبي" } as AttendanceRow];
     const ordered = [...group].sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
     const groupException = exceptions.find((exception) => (exception.date === "كافة الأيام" || exception.date === group[0].date) && (exception.employee === "الكل" || exception.employee === group[0].id));
     const midpoint = (start + end) / 2;
@@ -250,7 +260,7 @@ function calculatePayroll(rows: AttendanceRow[], profiles: Record<string, Employ
     workDates.forEach(({ key }) => {
       const dayRows = grouped[key] || [];
       if (holidayDates.has(key) || isExceptionFor(key, id, "عطلة رسمية / إذن")) return;
-      if (!dayRows.length) { absentMinutes += dailyHours * 60; return; }
+      if (!dayRows.length || dayRows.some((row) => row.status === "غياب")) { absentMinutes += dailyHours * 60; return; }
       lateMinutes += dayRows.reduce((sum, row) => sum + row.lateMinutes, 0);
       earlyMinutes += dayRows.reduce((sum, row) => sum + row.earlyMinutes, 0);
       const exit = dayRows.find((row) => row.role === "خروج");
@@ -293,7 +303,7 @@ export default function Home() {
     return () => document.removeEventListener("mousedown", closeExportMenu);
   }, []);
 
-  const statuses = useMemo(() => ["الكل", ...Array.from(new Set(rows.map((row) => displayStatus(row.status))))], [rows]);
+  const statuses = useMemo(() => ["الكل", "ضمن الوقت", "دخول متأخر", "خروج مبكر", "غياب"], []);
   const employees = useMemo(() => Array.from(new Set(rows.map((row) => row.id))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })), [rows]);
   const employeeProfiles = useMemo(() => parseEmployeeProfiles(namesText), [namesText]);
   const availableDates = useMemo(() => Array.from(new Set(rows.map((row) => row.date))).sort(), [rows]);
