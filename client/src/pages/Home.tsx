@@ -130,6 +130,22 @@ function parseEmployeeProfiles(text: string) {
     return profiles;
   }, {});
 }
+function normalizeDateValue(value: string) {
+  const parts = value.split(/[-\/]/).map(Number);
+  if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) return value;
+  const [first, second, third] = parts;
+  const year = first >= 1000 ? first : third >= 1000 ? third : 0;
+  const month = first >= 1000 ? second : second;
+  const day = first >= 1000 ? third : first;
+  if (!year || month < 1 || month > 12 || day < 1 || day > 31) return value;
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+function parseDateValue(value: string) {
+  const [year, month, day] = normalizeDateValue(value).split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+}
 function parseAttendanceText(text: string): ParseResult {
   const invalid: string[] = [];
   const parsedLines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
@@ -180,14 +196,14 @@ function parseAttendanceText(text: string): ParseResult {
     const codeCandidate = parts.find((part, index) => index !== dateIndex && index !== timeIndex && index !== detection.employeeIndex && /^\d+$/.test(part)) || "";
     const isDemoAbsence = parts.some((part) => part === "غياب");
     if (isDemoAbsence && dateMatch && employee) {
-      rows.push({ id: employee, employeeName: "", date: dateMatch[1], time: "—", code: "", raw: line, demoStatus: "غياب" });
+      rows.push({ id: employee, employeeName: "", date: normalizeDateValue(dateMatch[1]), time: "—", code: "", raw: line, demoStatus: "غياب" });
       return;
     }
     if (!dateMatch || !timeMatch || !employee) {
       if (!/^((رقم|التاريخ|date|id|employee|time|code|status)\b)/i.test(line)) invalid.push(line);
       return;
     }
-    rows.push({ id: employee, employeeName: "", date: dateMatch[1], time: timeMatch[0], code: codeCandidate, raw: line });
+    rows.push({ id: employee, employeeName: "", date: normalizeDateValue(dateMatch[1]), time: timeMatch[0], code: codeCandidate, raw: line });
   });
   return { rows: rows as ParseResult["rows"], invalid, detection };
 }
@@ -201,7 +217,7 @@ function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, em
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(row);
   });
-  const normalized = Array.from(groups.values()).flatMap((group) => {
+  const normalizedGroups = Array.from(groups.values()).flatMap((group) => {
     const demoAbsence = group.find((row) => row.demoStatus === "غياب");
     if (demoAbsence) return [{ ...demoAbsence, employeeName: employeeNames[demoAbsence.id] || "", role: "حركة" as const, status: "غياب" as const, lateMinutes: 0, earlyMinutes: 0, origin: "أصلية" as const, adjustment: "غياب تجريبي" } as AttendanceRow];
     const ordered = [...group].sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
@@ -232,7 +248,25 @@ function processAttendance(baseRows: ParseResult["rows"], schedule: Schedule, em
       return { ...row, employeeName: row.employeeName || employeeNames[row.id] || "", role, status, lateMinutes, earlyMinutes, origin: row.origin || "أصلية", adjustment: exceptionAdjustment || row.adjustment || "", exception: groupException?.kind, excludedDay: groupException?.kind === "عطلة رسمية / إذن" };
     });
   });
-  return { rows: normalized, summary };
+  const dateValues = baseRows.map((row) => parseDateValue(row.date)).filter((date): date is Date => Boolean(date));
+  const generatedAbsences: AttendanceRow[] = [];
+  if (dateValues.length) {
+    const firstDate = new Date(Math.min(...dateValues.map((date) => date.getTime())));
+    const lastDate = new Date(Math.max(...dateValues.map((date) => date.getTime())));
+    const employeeIds = Array.from(new Set(baseRows.map((row) => row.id)));
+    for (const cursor = new Date(firstDate); cursor <= lastDate; cursor.setDate(cursor.getDate() + 1)) {
+      const date = dateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+      if (schedule.weekendDays.includes(arabicWeekday(cursor))) continue;
+      for (const id of employeeIds) {
+        const key = `${id}|${date}`;
+        if (groups.has(key)) continue;
+        const hasLeave = exceptions.some((exception) => exception.kind === "عطلة رسمية / إذن" && (exception.date === "كافة الأيام" || exception.date === date) && (exception.employee === "الكل" || exception.employee === id));
+        if (hasLeave) continue;
+        generatedAbsences.push({ id, employeeName: employeeNames[id] || "", date, time: "—", code: "", raw: "غياب مضاف تلقائياً", role: "حركة", status: "غياب", lateMinutes: 0, earlyMinutes: 0, origin: "مضافة تلقائياً", adjustment: "غياب محسوب تلقائياً" });
+      }
+    }
+  }
+  return { rows: [...normalizedGroups, ...generatedAbsences], summary };
 }
 
 function dateKey(year: number, month: number, day: number) { return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`; }
