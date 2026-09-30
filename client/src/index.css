@@ -338,7 +338,8 @@ button { cursor: pointer; }
 .metric-alert .metric-label svg { color: var(--mustard); }
 .metric-card strong { display: block; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
 .metric-card span { color: var(--ink-faint); font-size: 10px; }
-.metric-value { display: block; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
+.metric-value { display: flex; align-items: baseline; justify-content: center; gap: 5px; margin: 11px 0 2px; color: var(--ink); font-family: "DM Serif Display", Georgia, serif; font-size: 39px; font-weight: 400; letter-spacing: -.025em; line-height: .9; }
+.metric-unit { color: var(--ink-soft); font-family: inherit; font-size: 16px; font-weight: 400; letter-spacing: 0; }
 .metric-note { display: block; color: var(--ink-faint); font-size: 10px; line-height: 1.4; }
 .dashboard-grid > .metric-card:nth-child(1), .dashboard-grid > .metric-card:nth-child(2) { align-self: start; }
 .minutes-merge-card { position: relative; grid-column: span 2; grid-row: span 2; min-height: 420px; overflow: hidden; border: 0; background: var(--ink); }
