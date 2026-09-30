@@ -317,12 +317,14 @@ button { cursor: pointer; }
 .metric-card { position: relative; min-height: 137px; border-top: 3px solid var(--ink); border-radius: 0 0 var(--radius) var(--radius); background-image: repeating-linear-gradient(0deg, transparent 0, transparent 33px, rgba(217,209,196,.20) 34px); }
 .metric-index { margin-bottom: 14px; color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: .06em; }
 .summary-card-title { display: block; margin: 0 0 14px; color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1.2; letter-spacing: 0; text-align: center; }
-.metric-heading { display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 14px; color: var(--ink); font-size: 15px; font-weight: 600; line-height: 1.2; text-align: center; }
+.metric-heading { display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 14px; color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.2; text-align: center; }
 .metric-heading svg { width: 17px; height: 17px; color: var(--ink-soft); }
 .metric-main .metric-index { color: var(--moss); }
 .metric-alert .metric-index { color: var(--mustard); }
 .metric-main .metric-heading svg { color: var(--moss); }
 .metric-alert .metric-heading svg { color: var(--mustard); }
+.metric-main .metric-heading { color: var(--moss); }
+.metric-alert .metric-heading { color: var(--mustard); }
 .metric-card.metric-main { border-top-color: var(--coral); }
 .dashboard-grid > .metric-card.metric-main { border-top: 1px solid var(--line); border-left: 3px solid var(--moss); border-radius: 0 var(--radius) var(--radius) 0; }
 .dashboard-grid > .metric-card:nth-child(2) { border-top: 1px solid var(--line); border-right: 3px solid var(--ink); border-radius: var(--radius) 0 0 var(--radius); }
