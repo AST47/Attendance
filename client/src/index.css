@@ -399,10 +399,10 @@ button { cursor: pointer; }
 .summary-adjustments span { padding: 4px 6px; border: 1px solid rgba(255,255,255,.22); background: rgba(23,50,77,.34); color: rgba(255,255,255,.82); font-size: 9px; }
 
 .table-card { margin-top: 18px; overflow: hidden; }
-.daily-card { margin-top: 18px; border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
+.daily-card { margin-top: 18px; border: 1px solid var(--line); border-top: 3px solid var(--coral); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
 .daily-card .table-scroll { max-height: 330px; overflow: auto; }
 .daily-table th, .daily-table td { padding-inline: 18px; }
-.payroll-card { margin-top: 18px; border: 1px solid var(--line); border-top: 3px solid var(--coral); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
+.payroll-card { margin-top: 18px; border: 1px solid var(--line); border-top: 3px solid var(--moss); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); overflow: hidden; }
 .payroll-table { min-width: 980px; }
 .payroll-table th, .payroll-table td { white-space: nowrap; }
 .payroll-table td b { color: var(--coral); }
