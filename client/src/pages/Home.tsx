@@ -292,8 +292,12 @@ function calculatePayroll(rows: AttendanceRow[], profiles: Record<string, Employ
     const hourlyRate = workdays && dailyHours ? profile.salary / (workdays * dailyHours) : 0;
     const monthRows = rows.filter((row) => row.id === id && row.date.startsWith(month));
     const grouped = groupByDay(monthRows);
+    const coveredKeys = monthRows.map((row) => row.date).sort();
+    const coveredDates = coveredKeys.length
+      ? workDates.filter(({ key }) => key >= coveredKeys[0] && key <= coveredKeys.at(-1)!)
+      : [];
     let lateMinutes = 0, earlyMinutes = 0, overtimeMinutes = 0, absentMinutes = 0;
-    workDates.forEach(({ key }) => {
+    coveredDates.forEach(({ key }) => {
       const dayRows = grouped[key] || [];
       if (holidayDates.has(key) || isExceptionFor(key, id, "عطلة رسمية / إذن")) return;
       if (!dayRows.length || dayRows.some((row) => row.status === "غياب")) { absentMinutes += dailyHours * 60; return; }
