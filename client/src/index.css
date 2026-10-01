@@ -178,15 +178,16 @@ button { cursor: pointer; }
 .section-intro > p strong { color: var(--ink); font-weight: 600; }
 .section-intro > .privacy-slip { flex: 0 0 auto; margin: 0; align-self: center; }
 
-.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "schedule analyze"; gap: 22px; align-items: start; }
+.input-layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(280px, .76fr); grid-template-areas: "raw names" "schedule exceptions" "schedule advances" "analyze analyze"; gap: 22px; align-items: start; }
 .input-layout > .input-card { grid-area: raw; }
 .input-layout > .exceptions-card { grid-area: exceptions; width: 163%; justify-self: end; }
+.input-layout > .advances-card { grid-area: advances; width: 163%; justify-self: end; }
 .input-layout > .mapping-column { display: contents; }
 .input-layout > .mapping-column > .mapping-card:first-child { grid-area: schedule; width: 61%; justify-self: start; }
 .input-layout > .mapping-column > .employee-names-card { grid-area: names; width: 100%; }
 .input-layout > .mapping-column > .privacy-slip { grid-area: privacy; }
 .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
-.exceptions-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
+.exceptions-card, .advances-card { border: 1px solid var(--line); background: rgba(252,250,246,.78); border-radius: var(--radius); box-shadow: 0 7px 24px rgba(23,50,77,.045); }
 .input-card-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 15px; }
 .input-card, .employee-names-card { align-self: stretch; height: 100%; box-sizing: border-box; }
 .section-title-row { display: flex; align-items: center; gap: 11px; }
@@ -266,8 +267,12 @@ button { cursor: pointer; }
 .mapping-preview b { color: var(--coral); font-family: "IBM Plex Mono", monospace; }
 .muted-inline { color: var(--ink-faint) !important; }
 .privacy-slip { display: flex; align-items: center; gap: 6px; margin: 13px 2px 0; color: var(--moss); font-size: 10px; }
-.exceptions-content { padding: 0 24px 22px; }
+.exceptions-content, .advances-content { padding: 0 24px 22px; }
 .exceptions-content > p { margin: 0 0 12px; color: var(--ink-faint); font-size: 10px; }
+.advance-row { display: grid; grid-template-columns: 1fr 1.35fr 1.25fr 28px; gap: 8px; align-items: end; margin-top: 10px; padding: 11px; border: 1px solid var(--line); background: rgba(247,243,235,.72); }
+.advance-row label { display: flex; min-width: 0; flex-direction: column; gap: 5px; color: var(--ink-soft); font-size: 9px; }
+.advance-row select, .advance-row input { width: 100%; height: 33px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper-white); color: var(--ink); font-size: 10px; outline: none; }
+.advance-row select:focus, .advance-row input:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(231,111,81,.12); }
 .exception-add-button { width: 100%; height: 32px; margin-top: 10px; justify-content: center; padding-inline: 11px; border-color: var(--coral); color: var(--coral); font-size: 10px; }
 .exception-add-button:hover { background: var(--coral-soft); }
 .exceptions-analyze-button { grid-area: analyze; width: 100%; margin-top: 0; justify-self: stretch; }
@@ -470,9 +475,9 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 @media (max-width: 1080px) {
   .content-wrap { width: min(100% - 48px, 920px); }
   .brand-rail { width: 178px; flex-basis: 178px; padding-inline: 20px; }
-  .input-layout { grid-template-columns: 1fr; grid-template-areas: "raw" "exceptions" "analyze" "schedule" "names"; }
+  .input-layout { grid-template-columns: 1fr; grid-template-areas: "raw" "exceptions" "advances" "analyze" "schedule" "names"; }
   .analysis-grid { grid-template-columns: 1fr; grid-template-areas: none; }
-  .input-layout > .input-card, .input-layout > .exceptions-card, .input-layout > .mapping-column > .mapping-card:first-child, .input-layout > .mapping-column > .employee-names-card, .input-layout > .mapping-column > .privacy-slip { grid-area: auto; width: auto; justify-self: stretch; }
+  .input-layout > .input-card, .input-layout > .exceptions-card, .input-layout > .advances-card, .input-layout > .mapping-column > .mapping-card:first-child, .input-layout > .mapping-column > .employee-names-card, .input-layout > .mapping-column > .privacy-slip { grid-area: auto; width: auto; justify-self: stretch; }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .summary-visual-card { min-height: 235px; }
   .summary-visual-card img { min-height: 235px; }
@@ -510,11 +515,12 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .section-intro > .privacy-slip { max-width: 150px; font-size: 9px; line-height: 1.5; }
   .section-intro > p { margin-top: 13px; text-align: right; }
   .section-intro h3 { font-size: 28px; }
-  .input-layout { gap: 15px; grid-template-areas: "raw" "exceptions" "analyze" "schedule" "names"; }
-  .exceptions-card { grid-column: auto; }
-  .exception-row { grid-template-columns: 1fr 1fr; }
-  .exception-row label:nth-child(3) { grid-column: 1 / -1; }
+  .input-layout { gap: 15px; grid-template-areas: "raw" "exceptions" "advances" "analyze" "schedule" "names"; }
+  .exceptions-card, .advances-card { grid-column: auto; }
+  .exception-row, .advance-row { grid-template-columns: 1fr 1fr; }
+  .exception-row label:nth-child(3), .advance-row label:nth-child(3) { grid-column: 1 / -1; }
   .exception-remove { grid-column: 2; grid-row: 1; justify-self: end; }
+.advance-row .exception-remove { grid-column: 2; grid-row: 1; justify-self: end; }
   .analyze-row { align-items: flex-start; flex-direction: column-reverse; }
   .analyze-button { width: 100%; }
   .analyze-caption { align-self: flex-start; }
