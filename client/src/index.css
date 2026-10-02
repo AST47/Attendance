@@ -151,6 +151,9 @@ button { cursor: pointer; }
 .site-header-note { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; direction: ltr; }
 .site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.88); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
+.site-header-logo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 58px; height: 58px; transform: translate(-50%, -50%); }
+.site-header-logo img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .18s ease; }
+.site-header-logo:hover img { transform: translateY(-2px) rotate(-3deg); }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
 .breadcrumb span { color: var(--ink-faint); }
@@ -462,7 +465,9 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .guide-copy .guide-accent { margin-top: 10px; color: var(--coral); font-family: "DM Serif Display", Georgia, serif; font-size: 22px; line-height: 1.2; }
 .guide-copy p { max-width: 480px; margin: 9px 0 0; color: rgba(245,240,231,.67); font-size: 11px; line-height: 1.85; }
 .guide-strip img { width: 130px; height: 160px; object-fit: cover; opacity: .82; mix-blend-mode: screen; transform: rotate(5deg) translateY(8px); }
-.site-footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 10px; }
+.site-footer { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 20px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 11px; }
+.site-footer a { color: var(--ink-soft); text-decoration: none; transition: color .18s ease, transform .18s ease; }
+.site-footer a:hover { color: var(--coral); transform: translateY(-1px); }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero-copy, .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { animation: rise-in .48s cubic-bezier(.23,1,.32,1) both; }
@@ -503,6 +508,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
   .site-header-note p { min-height: 40px; color: rgba(245,240,231,.92); font-size: 8px; line-height: 1.55; }
+  .site-header-logo { width: 45px; height: 45px; }
+  .site-header-logo img { width: 40px; height: 40px; }
   .hero-ready { left: 2%; top: 17px; width: 16%; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
