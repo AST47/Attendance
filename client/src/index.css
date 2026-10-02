@@ -457,9 +457,10 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 
 .guide-strip { min-height: 216px; display: flex; align-items: center; justify-content: space-between; gap: 25px; margin-top: 53px; padding: 28px 40px 28px 48px; overflow: hidden; background: var(--ink); color: var(--paper); }
 .guide-copy { max-width: 550px; }
-.guide-copy .eyebrow { color: #ffb29b; }
+.guide-copy .guide-raw-line { color: rgba(245,240,231,.82); }
 .guide-copy h3 { margin: 0; font-family: "DM Serif Display", Georgia, serif; font-size: 30px; font-weight: 400; line-height: 1.04; letter-spacing: -.02em; }
-.guide-copy p { max-width: 480px; margin: 13px 0 0; color: rgba(245,240,231,.67); font-size: 11px; line-height: 1.85; }
+.guide-copy .guide-accent { margin-top: 10px; color: var(--coral); font-family: "DM Serif Display", Georgia, serif; font-size: 22px; line-height: 1.2; }
+.guide-copy p { max-width: 480px; margin: 9px 0 0; color: rgba(245,240,231,.67); font-size: 11px; line-height: 1.85; }
 .guide-strip img { width: 130px; height: 160px; object-fit: cover; opacity: .82; mix-blend-mode: screen; transform: rotate(5deg) translateY(8px); }
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 10px; }
 
