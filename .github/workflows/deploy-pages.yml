@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -37,6 +37,18 @@ jobs:
         run: pnpm run build
         env:
           VITE_BASE_PATH: /Attendance/
+
+      - name: Publish built files to the legacy Pages root
+        if: ${{ !contains(github.event.head_commit.message, '[skip pages]') }}
+        run: |
+          rm -rf assets index.html .nojekyll
+          cp -R dist/public/. .
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets .nojekyll
+          git diff --cached --quiet || git commit -m "chore: update Pages build [skip pages]"
+          git push
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
