@@ -152,8 +152,8 @@ button { cursor: pointer; }
 .site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.88); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
 .site-header-logo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 58px; height: 58px; transform: translate(-50%, -50%); }
-.site-header-logo img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .18s ease; }
-.site-header-logo:hover img { transform: translateY(-2px) rotate(-3deg); }
+.site-header-logo img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
+.site-header-logo:hover img { transform: translateY(-3px) rotate(-5deg) scale(1.1); filter: drop-shadow(0 7px 12px rgba(0,0,0,.26)); }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
 .breadcrumb span { color: var(--ink-faint); }
@@ -468,6 +468,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .site-footer { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 20px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 11px; }
 .site-footer a { color: var(--ink-soft); text-decoration: none; transition: color .18s ease, transform .18s ease; }
 .site-footer a:hover { color: var(--coral); transform: translateY(-1px); }
+.site-footer span { color: var(--ink-faint); }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero-copy, .input-card, .mapping-card, .metric-card, .status-card, .summary-visual-card, .table-card { animation: rise-in .48s cubic-bezier(.23,1,.32,1) both; }
@@ -549,7 +550,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   th, td { padding-inline: 16px; }
   .guide-strip { min-height: 250px; padding: 27px 25px; }
   .guide-strip img { width: 98px; height: 128px; margin-left: -25px; }
-  .site-footer { align-items: flex-start; flex-direction: column; padding-inline: 20px; }
+  .site-footer { flex-wrap: wrap; padding-inline: 20px; }
 }
 
 @media (max-width: 430px) {
