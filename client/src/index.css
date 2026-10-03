@@ -151,8 +151,8 @@ button { cursor: pointer; }
 .site-header-note { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; direction: ltr; }
 .site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.88); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
-.site-header-logo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 58px; height: 58px; transform: translate(-50%, -50%); }
-.site-header-logo img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
+.site-header-logo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 94px; height: 62px; transform: translate(-50%, -50%); }
+.site-header-logo img { width: 86px; height: 54px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
 .site-header-logo:hover img { transform: translateY(-3px) rotate(-5deg) scale(1.1); filter: drop-shadow(0 7px 12px rgba(0,0,0,.26)); }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
@@ -535,8 +535,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
   .site-header-note p { min-height: 40px; color: rgba(245,240,231,.92); font-size: 8px; line-height: 1.55; }
-  .site-header-logo { width: 45px; height: 45px; }
-  .site-header-logo img { width: 40px; height: 40px; }
+  .site-header-logo { width: 76px; height: 50px; }
+  .site-header-logo img { width: 70px; height: 44px; }
   .hero-ready { left: 2%; top: 17px; width: 16%; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
