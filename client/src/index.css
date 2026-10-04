@@ -151,9 +151,6 @@ button { cursor: pointer; }
 .site-header-note { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; direction: ltr; }
 .site-header-note p { min-height: 53px; display: flex; align-items: center; margin: 0; color: rgba(245,240,231,.88); font-size: 10px; line-height: 1.5; text-align: center; white-space: nowrap; direction: rtl; }
 .site-header-note .rail-stamp { width: 53px; height: 53px; flex: 0 0 53px; }
-.site-header-logo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 94px; height: 62px; transform: translate(-50%, -50%); }
-.site-header-logo img { width: 86px; height: 54px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.16)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
-.site-header-logo:hover img { transform: translateY(-3px) rotate(-5deg) scale(1.1); filter: drop-shadow(0 7px 12px rgba(0,0,0,.26)); }
 .topbar { height: 78px; padding: 0 clamp(25px, 5vw, 78px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(217,209,196,.72); color: var(--ink-soft); font-size: 12px; }
 .breadcrumb { display: flex; align-items: center; gap: 9px; }
 .breadcrumb span { color: var(--ink-faint); }
@@ -465,12 +462,17 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .guide-copy .guide-accent { margin-top: 10px; color: var(--coral); font-family: "DM Serif Display", Georgia, serif; font-size: 22px; line-height: 1.2; }
 .guide-copy p { max-width: 480px; margin: 9px 0 0; color: rgba(245,240,231,.67); font-size: 11px; line-height: 1.85; }
 .guide-strip img { width: 130px; height: 160px; object-fit: cover; opacity: .82; mix-blend-mode: screen; transform: rotate(5deg) translateY(8px); }
-.site-footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; padding: 20px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 11px; direction: ltr; }
-.about-trigger { justify-self: start; display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; color: var(--ink-soft); font-size: 11px; direction: rtl; transition: color .18s ease, transform .18s ease; }
+.site-footer { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-areas: "actions logo rights"; align-items: center; gap: 24px; min-height: 126px; padding: 18px clamp(25px, 5vw, 78px); border-top: 1px solid rgba(217,209,196,.72); color: var(--ink-faint); font-size: 11px; direction: ltr; }
+.footer-actions { grid-area: actions; justify-self: start; display: flex; flex-direction: column; align-items: flex-start; gap: 11px; direction: rtl; }
+.about-trigger, .footer-customize { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; color: var(--ink-soft); font-size: 11px; direction: rtl; text-decoration: none; transition: color .18s ease, transform .18s ease; }
 .about-trigger:hover { color: var(--coral); transform: translateY(-1px); }
-.footer-name { justify-self: center; color: var(--ink-soft); text-decoration: none; direction: rtl; transition: color .18s ease, transform .18s ease; }
-.footer-name:hover { color: var(--coral); transform: translateY(-1px); }
-.footer-rights { justify-self: end; color: var(--ink-faint); direction: rtl; }
+.footer-customize { color: var(--coral); font-weight: 600; }
+.footer-customize:hover { color: var(--ink); transform: translateY(-1px); }
+.footer-logo { grid-area: logo; display: grid; place-items: center; width: 172px; height: 96px; }
+.footer-logo img { width: 160px; height: 88px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.13)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
+.footer-logo:hover img { transform: translateY(-4px) rotate(-4deg) scale(1.08); filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
+.footer-rights { grid-area: rights; justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 7px; color: var(--ink-faint); direction: rtl; line-height: 1.4; }
+.footer-rights span:first-child { color: var(--ink-soft); font-weight: 600; }
 .about-dialog { width: min(980px, calc(100% - 2rem)); max-width: 980px; max-height: min(86vh, 820px); overflow-y: auto; padding: 34px; background: var(--paper-white); border-color: var(--line); }
 .about-dialog-header { padding: 0 34px 24px 0; border-bottom: 1px solid var(--line); text-align: right; }
 .about-kicker { color: var(--coral); font-size: 10px; font-weight: 600; letter-spacing: .08em; }
@@ -537,8 +539,6 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .site-header-note .rail-stamp { width: 40px; height: 40px; flex-basis: 40px; font-size: 6px; }
   .site-header-note .rail-stamp strong { font-size: 7px; }
   .site-header-note p { min-height: 40px; color: rgba(245,240,231,.92); font-size: 8px; line-height: 1.55; }
-  .site-header-logo { width: 76px; height: 50px; }
-  .site-header-logo img { width: 70px; height: 44px; }
   .hero-ready { left: 2%; top: 17px; width: 16%; font-size: 10px; }
   .content-wrap { width: calc(100% - 32px); padding: 25px 0 49px; }
   .hero-section { min-height: 345px; align-items: flex-start; padding: 30px 25px; background-position: 60% center; }
@@ -578,10 +578,11 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   th, td { padding-inline: 16px; }
   .guide-strip { min-height: 250px; padding: 27px 25px; }
   .guide-strip img { width: 98px; height: 128px; margin-left: -25px; }
-  .site-footer { grid-template-columns: 1fr 1fr; gap: 14px 10px; padding-inline: 20px; }
-  .about-trigger { justify-self: start; }
-  .footer-name { grid-column: 1 / -1; grid-row: 1; }
-  .footer-rights { justify-self: end; grid-column: 2; grid-row: 2; }
+  .site-footer { grid-template-columns: 1fr auto 1fr; gap: 10px; min-height: 112px; padding-inline: 20px; }
+  .footer-logo { width: 132px; height: 82px; }
+  .footer-logo img { width: 122px; height: 74px; }
+  .footer-actions { gap: 9px; }
+  .about-trigger, .footer-customize, .footer-rights { font-size: 9px; }
   .about-dialog { width: calc(100% - 1rem); padding: 24px 18px; }
   .about-dialog-header { padding-right: 30px; }
   .about-dialog-header h2 { font-size: 27px; }
@@ -604,4 +605,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .export-button { width: 100%; justify-content: center; }
   .guide-copy h3 { font-size: 25px; }
   .guide-copy p { font-size: 10px; }
+  .site-footer { gap: 6px; padding-inline: 12px; }
+  .footer-logo { width: 104px; height: 70px; }
+  .footer-logo img { width: 98px; height: 64px; }
+  .about-trigger, .footer-customize, .footer-rights { font-size: 8px; }
 }
