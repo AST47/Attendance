@@ -493,6 +493,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .changelog-entry span { color: var(--coral); font-size: 11px; }
 .changelog-next { display: flex; gap: 12px; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
 .changelog-next span { color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
+.changelog-next a { color: var(--coral); text-decoration: none; font-weight: 600; }
+.changelog-next a:hover { text-decoration: underline; }
 .about-dialog-footer { display: flex; justify-content: space-between; gap: 14px; padding-top: 21px; color: var(--ink-faint); font-size: 10px; }
 .about-dialog-footer a { color: var(--coral); text-decoration: none; direction: ltr; }
 
