@@ -500,7 +500,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .changelog-next span { color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
 .changelog-next a { color: var(--coral); text-decoration: none; font-weight: 600; }
 .changelog-next a:hover { text-decoration: underline; }
-.about-dialog-footer { display: flex; justify-content: space-between; gap: 14px; padding-top: 21px; color: var(--ink-faint); font-size: 10px; }
+.about-dialog-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 14px; padding-top: 21px; color: var(--ink-faint); font-size: 10px; }
 .about-dialog-footer a { color: var(--coral); text-decoration: none; direction: ltr; }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -592,7 +592,7 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
   .about-dialog-header h2 { font-size: 27px; }
   .about-dialog-grid { grid-template-columns: 1fr; }
   .about-purpose-panel, .about-changelog-panel { grid-column: auto; }
-  .about-dialog-footer { flex-direction: column; gap: 7px; }
+  .about-dialog-footer { flex-direction: row; align-items: center; gap: 7px; }
 }
 
 @media (max-width: 430px) {
