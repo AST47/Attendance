@@ -470,7 +470,8 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .about-trigger, .footer-customize { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; color: var(--ink-soft); font-size: 11px; direction: rtl; text-decoration: none; transition: color .18s ease, transform .18s ease; }
 .about-trigger:hover { color: var(--coral); transform: translateY(-1px); }
 .footer-customize { color: var(--coral); font-weight: 600; }
-.footer-customize .whatsapp-icon { color: #25d366; flex: 0 0 auto; }
+.footer-customize .whatsapp-icon { width: 14px; height: 14px; color: #25d366; flex: 0 0 auto; transition: transform .22s cubic-bezier(.23,1,.32,1), filter .22s ease; }
+.footer-customize:hover .whatsapp-icon { transform: translateY(-2px) rotate(-8deg) scale(1.16); filter: drop-shadow(0 3px 4px rgba(37,211,102,.28)); }
 .footer-customize:hover { color: var(--ink); transform: translateY(-1px); }
 .footer-logo { grid-area: logo; display: grid; place-items: center; width: 172px; height: 96px; }
 .footer-logo img { width: 160px; height: 88px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.13)); transition: transform .24s cubic-bezier(.23,1,.32,1), filter .24s ease; }
@@ -501,6 +502,9 @@ tbody tr:hover { background: rgba(246,222,213,.26); }
 .changelog-next span { color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
 .changelog-next a { color: var(--coral); text-decoration: none; font-weight: 600; }
 .changelog-next a:hover { text-decoration: underline; }
+.whatsapp-link { display: inline-flex; align-items: center; gap: 5px; }
+.whatsapp-link svg { width: 14px; height: 14px; color: #25d366; transition: transform .22s cubic-bezier(.23,1,.32,1), filter .22s ease; }
+.whatsapp-link:hover svg { transform: translateY(-2px) rotate(-8deg) scale(1.16); filter: drop-shadow(0 3px 4px rgba(37,211,102,.28)); }
 .about-dialog-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 14px; padding-top: 21px; color: var(--ink-faint); font-size: 10px; }
 .about-dialog-footer a { color: var(--coral); text-decoration: none; direction: ltr; }
 
