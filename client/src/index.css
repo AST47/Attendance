@@ -335,6 +335,12 @@ button { cursor: pointer; }
 .metric-alert .metric-heading { color: var(--mustard); }
 .dashboard-grid > .metric-card:nth-child(2) .metric-heading { color: var(--ink) !important; }
 .dashboard-grid > .metric-card:nth-child(2) .metric-heading svg { color: var(--ink) !important; }
+.payable-card .metric-heading,
+.payable-card .metric-heading span,
+.payable-card .metric-heading svg { color: var(--coral) !important; }
+.minutes-merge-metrics .metric-alert .metric-heading,
+.minutes-merge-metrics .metric-alert .metric-heading span,
+.minutes-merge-metrics .metric-alert .metric-heading svg { color: var(--mustard) !important; }
 .metric-card.metric-main { border-top-color: var(--coral); }
 .dashboard-grid > .metric-card.metric-main { border-top: 1px solid var(--line); border-left: 3px solid var(--moss); border-radius: 0 var(--radius) var(--radius) 0; }
 .dashboard-grid > .metric-card:nth-child(2) { border-top: 1px solid var(--line); border-right: 3px solid var(--ink); border-radius: var(--radius) 0 0 var(--radius); }
