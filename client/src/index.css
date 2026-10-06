@@ -341,6 +341,7 @@ button { cursor: pointer; }
 .payable-heading,
 .payable-heading span,
 .payable-heading svg { color: #e76f51 !important; }
+.payable-heading span { font-size: 16px !important; font-weight: 600 !important; line-height: 1.2; }
 .minutes-merge-metrics .metric-alert .metric-heading,
 .minutes-merge-metrics .metric-alert .metric-heading span,
 .minutes-merge-metrics .metric-alert .metric-heading svg { color: var(--mustard) !important; }
