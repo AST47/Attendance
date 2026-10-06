@@ -338,6 +338,9 @@ button { cursor: pointer; }
 .payable-card .metric-heading,
 .payable-card .metric-heading span,
 .payable-card .metric-heading svg { color: var(--coral) !important; }
+.payable-heading,
+.payable-heading span,
+.payable-heading svg { color: #e76f51 !important; }
 .minutes-merge-metrics .metric-alert .metric-heading,
 .minutes-merge-metrics .metric-alert .metric-heading span,
 .minutes-merge-metrics .metric-alert .metric-heading svg { color: var(--mustard) !important; }
